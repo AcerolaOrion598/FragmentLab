@@ -19,11 +19,13 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    Fragment gitAuthFragment, gitRepoFragment, mapsFragment;
     Context context = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -45,6 +47,12 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        gitAuthFragment = new GitAuth();
+        gitRepoFragment = new GitRepoFragment();
+        mapsFragment = new MapsFragment();
+
+        getSupportFragmentManager().beginTransaction().add(R.id.main_fragment, gitAuthFragment).commit();
     }
 
     @Override
@@ -82,9 +90,9 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            fragment = new GitRepoFragment();
+            fragment = gitAuthFragment;
         } else if (id == R.id.nav_gallery) {
-            fragment = new MapsFragment();
+            fragment = mapsFragment;
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
@@ -98,6 +106,8 @@ public class MainActivity extends AppCompatActivity
         if (fragment != null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment, fragment).commit();
         }
+
+
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
