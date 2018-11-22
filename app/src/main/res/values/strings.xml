@@ -14,4 +14,7 @@
     <string name="title_text_view">Список Репозиторий</string>
     <string name="button_repo">Вывести Список Репозиторий</string>
     <string name="github_auth_tv">Введите Логин Пользователя GitHub</string>
+    <string name="github">GitHub</string>
+    <string name="maps">Maps</string>
+    <string name="calculator">Calculator</string>
 </resources>

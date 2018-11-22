@@ -19,7 +19,7 @@ import android.view.View;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    Fragment gitAuthFragment, gitRepoFragment, mapsFragment;
+    Fragment gitAuthFragment, gitRepoFragment, current, mapsFragment;
     Context context = this;
 
     @Override
@@ -50,7 +50,8 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        gitAuthFragment = new GitAuth();
+        current = gitAuthFragment = new GitAuthFragment();
+        gitRepoFragment = new GitRepoFragment();
         mapsFragment = new MapsFragment();
         getSupportFragmentManager().beginTransaction().add(R.id.main_fragment, gitAuthFragment).commit();
     }
@@ -89,15 +90,11 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = null;
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            if (gitRepoFragment == null) {
-                fragment = gitAuthFragment;
-            } else {
-                fragment = gitRepoFragment;
-            }
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_github_auth) {
+            fragment = current;
+        } else if (id == R.id.nav_maps) {
             fragment = mapsFragment;
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_calculator) {
 
         } else if (id == R.id.nav_manage) {
 

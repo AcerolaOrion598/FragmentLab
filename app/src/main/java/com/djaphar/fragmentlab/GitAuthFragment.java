@@ -25,12 +25,11 @@ import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class GitAuth extends Fragment {
+public class GitAuthFragment extends Fragment {
 
     MainActivity mainActivity;
     TextView textView;
     Button button;
-    Fragment repoFragment = new GitRepoFragment();
     EditText editText;
     Context mainContext;
 
@@ -58,6 +57,8 @@ public class GitAuth extends Fragment {
             }
         });
 
+        mainActivity.current = mainActivity.gitAuthFragment;
+
         return rootView;
     }
 
@@ -84,11 +85,14 @@ public class GitAuth extends Fragment {
                 connection.setRequestMethod("GET");
                 connection.setReadTimeout(10000);
                 connection.connect();
-                int responseCode = connection.getResponseCode();
-                if (responseCode == HttpsURLConnection.HTTP_OK) {
-                    resultJson = streamConverse(connection.getInputStream());
+                try {
+                    int responseCode = connection.getResponseCode();
+                    if (responseCode == HttpsURLConnection.HTTP_OK) {
+                        resultJson = streamConverse(connection.getInputStream());
+                    }
+                } finally {
+                    connection.disconnect();
                 }
-                connection.disconnect();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -117,11 +121,11 @@ public class GitAuth extends Fragment {
         @Override
         protected void onPostExecute(String[] result) {
             if (!(result == null)) {
-                ((GitRepoFragment) repoFragment).getRepositories(result);
-                ((GitRepoFragment) repoFragment).getTextForTV(owner);
-                mainActivity.gitRepoFragment = repoFragment;
+                ((GitRepoFragment) mainActivity.gitRepoFragment).getRepositories(result);
+                ((GitRepoFragment) mainActivity.gitRepoFragment).getTextForTV(owner);
+                mainActivity.current = mainActivity.gitRepoFragment;
                 Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.main_fragment, repoFragment).addToBackStack(null).commit();
+                        .replace(R.id.main_fragment, mainActivity.gitRepoFragment).addToBackStack(null).commit();
                 editText.setText("");
             } else {
                 Toast.makeText(getActivity(), mainContext.getString(R.string.toast_connection), Toast.LENGTH_SHORT).show();
