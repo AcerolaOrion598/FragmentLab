@@ -7,30 +7,43 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
 public class GitAuth extends Fragment {
 
+    MainActivity mainActivity;
     TextView textView;
+    Button button;
+    Fragment repoFragment;
+    EditText editText;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              final Bundle savedInstanceState) {
+
         View rootView = inflater.inflate(R.layout.fragment_git_auth, container, false);
 
-        final EditText editText = rootView.findViewById(R.id.editText2);
+        mainActivity = (MainActivity)getActivity();
+        editText = rootView.findViewById(R.id.editText2);
         textView = rootView.findViewById(R.id.textView3);
-        rootView.findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
+        button = rootView.findViewById(R.id.button);
+
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!editText.getText().toString().equals("")) {
@@ -47,16 +60,16 @@ public class GitAuth extends Fragment {
 
     class GitConnectionTask extends AsyncTask<String, Void, String> {
 
-        String answerHTTP;
-
         @Override
         protected void onPreExecute() {
-            super.onPreExecute();
+            button.setEnabled(false);
         }
 
         @Override
         protected String doInBackground(String... newUrl) {
             HttpsURLConnection connection = null;
+            String resultJson = "";
+
             try {
                 URL url = new URL(newUrl[0]);
                 connection = (HttpsURLConnection) url.openConnection();
@@ -65,27 +78,47 @@ public class GitAuth extends Fragment {
                 connection.connect();
                 int responseCode = connection.getResponseCode();
                 if (responseCode == HttpsURLConnection.HTTP_OK) {
-                answerHTTP = streamConverse(connection.getInputStream());
+                resultJson = streamConverse(connection.getInputStream());
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                Toast.makeText(getActivity(), "Ошибка соединения!", Toast.LENGTH_SHORT).show();
             } finally {
                 if (connection != null) {
                     connection.disconnect();
                 }
             }
-            return null;
-        }
 
+            return resultJson;
+        }
 
         @Override
         protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            textView.setText(answerHTTP);
+            JSONArray jsonArray;
+            StringBuilder repositories = new StringBuilder();
+
+            try {
+                jsonArray = new JSONArray(result);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject object = jsonArray.getJSONObject(i);
+                    repositories.append(object.getString("name"));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            repoFragment = new GitRepoFragment();
+            ((GitRepoFragment) repoFragment).getTextForTV(repositories.toString());
+            mainActivity.gitRepoFragment = repoFragment;
+            Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.main_fragment, repoFragment).commit();
+
+            editText.setText("");
+            button.setEnabled(true);
         }
     }
 
     public String streamConverse(InputStream in) {
+
         BufferedReader reader = null;
         StringBuilder response = new StringBuilder();
 

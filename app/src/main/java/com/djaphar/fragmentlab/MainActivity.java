@@ -19,8 +19,9 @@ import android.view.View;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    Fragment gitAuthFragment, mapsFragment;
+    Fragment gitAuthFragment, gitRepoFragment, mapsFragment;
     Context context = this;
+    Boolean gitRepoFlag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +91,11 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            fragment = gitAuthFragment;
+            if (gitRepoFragment == null) {
+                fragment = gitAuthFragment;
+            } else {
+                fragment = gitRepoFragment;
+            }
         } else if (id == R.id.nav_gallery) {
             fragment = mapsFragment;
         } else if (id == R.id.nav_slideshow) {
