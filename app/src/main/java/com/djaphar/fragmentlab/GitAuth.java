@@ -1,5 +1,6 @@
 package com.djaphar.fragmentlab;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -29,8 +30,9 @@ public class GitAuth extends Fragment {
     MainActivity mainActivity;
     TextView textView;
     Button button;
-    Fragment repoFragment;
+    Fragment repoFragment = new GitRepoFragment();
     EditText editText;
+    Context mainContext;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -39,6 +41,7 @@ public class GitAuth extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_git_auth, container, false);
 
         mainActivity = (MainActivity)getActivity();
+        mainContext = Objects.requireNonNull(mainActivity).context;
         editText = rootView.findViewById(R.id.editText2);
         textView = rootView.findViewById(R.id.textView3);
         button = rootView.findViewById(R.id.button);
@@ -50,7 +53,7 @@ public class GitAuth extends Fragment {
                     new GitConnectionTask().execute("https://api.github.com/users/" +
                                                             editText.getText().toString() + "/repos");
                 } else {
-                    Toast.makeText(getActivity(), "Введите имя пользователя!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), mainContext.getString(R.string.toast_username), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -58,7 +61,9 @@ public class GitAuth extends Fragment {
         return rootView;
     }
 
-    class GitConnectionTask extends AsyncTask<String, Void, String> {
+    class GitConnectionTask extends AsyncTask<String, Void, String[]> {
+
+        String owner = "";
 
         @Override
         protected void onPreExecute() {
@@ -66,9 +71,12 @@ public class GitAuth extends Fragment {
         }
 
         @Override
-        protected String doInBackground(String... newUrl) {
-            HttpsURLConnection connection = null;
+        protected String[] doInBackground(String... newUrl) {
+
+            HttpsURLConnection connection;
             String resultJson = "";
+            JSONArray jsonArray;
+            String[] repositories = null;
 
             try {
                 URL url = new URL(newUrl[0]);
@@ -78,41 +86,46 @@ public class GitAuth extends Fragment {
                 connection.connect();
                 int responseCode = connection.getResponseCode();
                 if (responseCode == HttpsURLConnection.HTTP_OK) {
-                resultJson = streamConverse(connection.getInputStream());
+                    resultJson = streamConverse(connection.getInputStream());
                 }
+                connection.disconnect();
             } catch (IOException e) {
-                Toast.makeText(getActivity(), "Ошибка соединения!", Toast.LENGTH_SHORT).show();
-            } finally {
-                if (connection != null) {
-                    connection.disconnect();
-                }
-            }
-
-            return resultJson;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            JSONArray jsonArray;
-            StringBuilder repositories = new StringBuilder();
-
-            try {
-                jsonArray = new JSONArray(result);
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject object = jsonArray.getJSONObject(i);
-                    repositories.append(object.getString("name"));
-                }
-            } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            repoFragment = new GitRepoFragment();
-            ((GitRepoFragment) repoFragment).getTextForTV(repositories.toString());
-            mainActivity.gitRepoFragment = repoFragment;
-            Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.main_fragment, repoFragment).commit();
+            if (!resultJson.equals("")) {
+                try {
+                    jsonArray = new JSONArray(resultJson);
+                    repositories = new String[jsonArray.length()];
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject objectRepositories = jsonArray.getJSONObject(i);
+                        if (owner.equals("")) {
+                            JSONObject objectOwner = objectRepositories.getJSONObject("owner");
+                            owner = objectOwner.getString("login");
+                        }
+                        repositories[i] = objectRepositories.getString("name");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
-            editText.setText("");
+            }
+
+            return repositories;
+        }
+
+        @Override
+        protected void onPostExecute(String[] result) {
+            if (!(result == null)) {
+                ((GitRepoFragment) repoFragment).getRepositories(result);
+                ((GitRepoFragment) repoFragment).getTextForTV(owner);
+                mainActivity.gitRepoFragment = repoFragment;
+                Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.main_fragment, repoFragment).addToBackStack(null).commit();
+                editText.setText("");
+            } else {
+                Toast.makeText(getActivity(), mainContext.getString(R.string.toast_connection), Toast.LENGTH_SHORT).show();
+            }
             button.setEnabled(true);
         }
     }

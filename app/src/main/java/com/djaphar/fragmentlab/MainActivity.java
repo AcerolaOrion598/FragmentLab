@@ -21,7 +21,6 @@ public class MainActivity extends AppCompatActivity
 
     Fragment gitAuthFragment, gitRepoFragment, mapsFragment;
     Context context = this;
-    Boolean gitRepoFlag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
