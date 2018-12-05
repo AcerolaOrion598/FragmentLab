@@ -15,7 +15,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -29,7 +28,6 @@ public class MainActivity extends AppCompatActivity
     Fragment gitAuthFragment, gitRepoFragment, current, mapsFragment;
     GoogleMap gMap;
     SupportMapFragment mapFragment;
-    ViewGroup.LayoutParams params;
     Context context = this;
 
     @Override
@@ -64,7 +62,7 @@ public class MainActivity extends AppCompatActivity
         //mapsFragment = new MapsFragment();
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         Objects.requireNonNull(mapFragment).getMapAsync(MainActivity.this);
-        params = Objects.requireNonNull(mapFragment.getView()).getLayoutParams();
+        Objects.requireNonNull(mapFragment.getView()).setVisibility(View.GONE);
 
         getSupportFragmentManager().beginTransaction().add(R.id.main_fragment, gitAuthFragment).commit();
     }
@@ -102,13 +100,13 @@ public class MainActivity extends AppCompatActivity
 
         Fragment fragment = null;
         int id = item.getItemId();
-        hideMap();
+        Objects.requireNonNull(mapFragment.getView()).setVisibility(View.GONE);
 
         if (id == R.id.nav_github_auth) {
             fragment = current;
         } else if (id == R.id.nav_maps) {
             //fragment = mapsFragment;
-            exposeMap();
+            Objects.requireNonNull(mapFragment.getView()).setVisibility(View.VISIBLE);
         } else if (id == R.id.nav_calculator) {
 
         } else if (id == R.id.nav_manage) {
@@ -125,8 +123,6 @@ public class MainActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction().remove(current).commit();
         }
 
-
-
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -135,15 +131,5 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         gMap = googleMap;
-    }
-
-    public void exposeMap() {
-        params.height = 900;
-        Objects.requireNonNull(mapFragment.getView()).setLayoutParams(params);
-    }
-
-    public void hideMap() {
-        params.height = 0;
-        Objects.requireNonNull(mapFragment.getView()).setLayoutParams(params);
     }
 }

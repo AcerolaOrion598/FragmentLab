@@ -29,19 +29,18 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         return rootView;
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        initMap();
-    }
-
-    private void initMap() {
-        //хуня вот тута
-        SupportMapFragment mapFragment = (SupportMapFragment) mainActivity.getSupportFragmentManager().findFragmentById(R.id.map) ;
-        Objects.requireNonNull(mapFragment).getMapAsync(MapsFragment.this);
-    }
-
-
+//    @Override
+//    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+//        super.onViewCreated(view, savedInstanceState);
+//        initMap();
+//    }
+//
+//    private void initMap() {
+//        SupportMapFragment mapFragment = (SupportMapFragment) mainActivity.getSupportFragmentManager().findFragmentById(R.id.map) ;
+//        Objects.requireNonNull(mapFragment).getMapAsync(MapsFragment.this);
+//    }
+//
+//
     @Override
     public void onMapReady(GoogleMap googleMap) {
         gMap = googleMap;
