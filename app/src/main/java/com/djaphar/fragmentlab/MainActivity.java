@@ -16,18 +16,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-
-import java.util.Objects;
-
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+        implements NavigationView.OnNavigationItemSelectedListener {
 
     Fragment gitAuthFragment, gitRepoFragment, current, mapsFragment;
-    GoogleMap gMap;
-    SupportMapFragment mapFragment;
     Context context = this;
 
     @Override
@@ -59,10 +51,7 @@ public class MainActivity extends AppCompatActivity
 
         current = gitAuthFragment = new GitAuthFragment();
         gitRepoFragment = new GitRepoFragment();
-        //mapsFragment = new MapsFragment();
-        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        Objects.requireNonNull(mapFragment).getMapAsync(MainActivity.this);
-        Objects.requireNonNull(mapFragment.getView()).setVisibility(View.GONE);
+        mapsFragment = new MapsFragment();
 
         getSupportFragmentManager().beginTransaction().add(R.id.main_fragment, gitAuthFragment).commit();
     }
@@ -100,16 +89,14 @@ public class MainActivity extends AppCompatActivity
 
         Fragment fragment = null;
         int id = item.getItemId();
-        Objects.requireNonNull(mapFragment.getView()).setVisibility(View.GONE);
 
         if (id == R.id.nav_github_auth) {
             fragment = current;
         } else if (id == R.id.nav_maps) {
-            //fragment = mapsFragment;
-            Objects.requireNonNull(mapFragment.getView()).setVisibility(View.VISIBLE);
+            fragment = mapsFragment;
         } else if (id == R.id.nav_calculator) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_manage) { 
 
         } else if (id == R.id.nav_share) {
 
@@ -119,17 +106,10 @@ public class MainActivity extends AppCompatActivity
 
         if (fragment != null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment, fragment).commit();
-        } else {
-            getSupportFragmentManager().beginTransaction().remove(current).commit();
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        gMap = googleMap;
-    }
-}
+         }
