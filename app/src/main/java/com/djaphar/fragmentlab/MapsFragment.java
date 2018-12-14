@@ -1,6 +1,5 @@
 package com.djaphar.fragmentlab;
 
-
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -13,11 +12,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -34,7 +31,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     MainActivity mainActivity;
     GoogleMap gMap;
     Context thisFragment;
-    Button button;
     Task location;
     final float defaultZoom = 15f;
 
@@ -45,7 +41,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         mainActivity = (MainActivity) getActivity();
         assert mainActivity != null;
         thisFragment = mainActivity.mapsFragment.getContext();
-        button = rootView.findViewById(R.id.button3);
 
         return rootView;
     }
@@ -59,12 +54,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         gMap = googleMap;
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getDeviceLocation();
-            }
-        });
+        getDeviceLocation();
         if (ActivityCompat.checkSelfPermission(thisFragment, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(thisFragment,
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
