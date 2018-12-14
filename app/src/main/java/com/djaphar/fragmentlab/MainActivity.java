@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab =  findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity
             fragment = mapsFragment;
         } else if (id == R.id.nav_calculator) {
 
-        } else if (id == R.id.nav_manage) { 
+        } else if (id == R.id.nav_manage) {
 
         } else if (id == R.id.nav_share) {
 
@@ -112,4 +112,4 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-         }
+}
