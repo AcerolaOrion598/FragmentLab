@@ -1,16 +1,13 @@
 package com.djaphar.fragmentlab;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -21,29 +18,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class GitAuthFragment extends Fragment {
+public class GitAuthActivity extends AppCompatActivity {
 
-    MainActivity mainActivity;
-    TextView textView;
+    Context context = this;
     Button button;
     EditText editText;
-    Context mainContext;
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             final Bundle savedInstanceState) {
-
-        View rootView = inflater.inflate(R.layout.fragment_git_auth, container, false);
-
-        mainActivity = (MainActivity)getActivity();
-        mainContext = Objects.requireNonNull(mainActivity).context;
-        editText = rootView.findViewById(R.id.editText2);
-        textView = rootView.findViewById(R.id.textView3);
-        button = rootView.findViewById(R.id.button);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_git_auth);
+        button = findViewById(R.id.button);
+        editText = findViewById(R.id.editText2);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,14 +41,10 @@ public class GitAuthFragment extends Fragment {
                     new GitConnectionTask().execute("https://api.github.com/users/" +
                                                             editText.getText().toString() + "/repos");
                 } else {
-                    Toast.makeText(getActivity(), mainContext.getString(R.string.toast_username), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, R.string.toast_username, Toast.LENGTH_SHORT).show();
                 }
             }
         });
-
-        mainActivity.current = mainActivity.gitAuthFragment;
-
-        return rootView;
     }
 
     class GitConnectionTask extends AsyncTask<String, Void, String[]> {
@@ -73,7 +58,6 @@ public class GitAuthFragment extends Fragment {
 
         @Override
         protected String[] doInBackground(String... newUrl) {
-
             HttpsURLConnection connection;
             String resultJson = "";
             JSONArray jsonArray;
@@ -112,7 +96,6 @@ public class GitAuthFragment extends Fragment {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
             }
 
             return repositories;
@@ -121,21 +104,19 @@ public class GitAuthFragment extends Fragment {
         @Override
         protected void onPostExecute(String[] result) {
             if (!(result == null)) {
-                ((GitRepoFragment) mainActivity.gitRepoFragment).getRepositories(result);
-                ((GitRepoFragment) mainActivity.gitRepoFragment).getTextForTV(owner);
-                mainActivity.current = mainActivity.gitRepoFragment;
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.main_fragment, mainActivity.gitRepoFragment).addToBackStack(null).commit();
+                Intent intent = new Intent(context, MainActivity.class);
+                intent.putExtra("Repositories", result);
+                intent.putExtra("Owner", owner);
+                startActivity(intent);
                 editText.setText("");
             } else {
-                Toast.makeText(getActivity(), mainContext.getString(R.string.toast_connection), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, R.string.toast_connection, Toast.LENGTH_SHORT).show();
             }
             button.setEnabled(true);
         }
     }
 
     public String streamConverse(InputStream in) {
-
         BufferedReader reader = null;
         StringBuilder response = new StringBuilder();
 

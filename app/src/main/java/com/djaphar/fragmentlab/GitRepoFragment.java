@@ -25,7 +25,6 @@ public class GitRepoFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_git_repo, container, false);
 
-
         listView = rootView.findViewById(R.id.list_view_main);
         titleTV = rootView.findViewById(R.id.titleTV);
         return rootView;
@@ -35,17 +34,11 @@ public class GitRepoFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        parsedJson = Objects.requireNonNull(getArguments()).getStringArray("Repos");
+        title = Objects.requireNonNull(getArguments()).getString("Own");
         titleTV.append(" " + title);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(Objects.requireNonNull(this.getContext()),
                 android.R.layout.simple_list_item_1, parsedJson);
         listView.setAdapter(adapter);
-    }
-
-    public void getRepositories(String[] getParsedJson) {
-        parsedJson = getParsedJson;
-    }
-
-    public void getTextForTV(String authUser) {
-        title = authUser;
     }
 }

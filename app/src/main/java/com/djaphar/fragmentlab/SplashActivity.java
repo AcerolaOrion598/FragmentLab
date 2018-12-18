@@ -10,7 +10,7 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
 
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, GitAuthActivity.class);
         startActivity(intent);
         finish();
     }

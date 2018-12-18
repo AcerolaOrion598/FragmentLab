@@ -16,10 +16,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.util.Objects;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    Fragment gitAuthFragment, gitRepoFragment, current, mapsFragment;
+    Fragment gitRepoFragment, mapsFragment;
     Context context = this;
 
     @Override
@@ -49,11 +51,16 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        current = gitAuthFragment = new GitAuthFragment();
         gitRepoFragment = new GitRepoFragment();
+        Bundle fragmentArgs = new Bundle();
+        fragmentArgs.putStringArray("Repos", Objects.requireNonNull(getIntent().getExtras()).getStringArray("Repositories"));
+        fragmentArgs.putString("Own", Objects.requireNonNull(getIntent().getExtras().get("Owner")).toString());
+        gitRepoFragment.setArguments(fragmentArgs);
+
         mapsFragment = new MapsFragment();
 
-        getSupportFragmentManager().beginTransaction().add(R.id.main_fragment, gitAuthFragment).commit();
+        navigationView.setCheckedItem(R.id.nav_github_auth);
+        getSupportFragmentManager().beginTransaction().add(R.id.main_fragment, gitRepoFragment).commit();
     }
 
     @Override
@@ -90,19 +97,28 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = null;
         int id = item.getItemId();
 
-        if (id == R.id.nav_github_auth) {
-            fragment = current;
-        } else if (id == R.id.nav_maps) {
-            fragment = mapsFragment;
-        } else if (id == R.id.nav_calculator) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        switch (id) {
+            case R.id.nav_github_auth:
+                fragment = gitRepoFragment;
+                break;
+            case R.id.nav_maps:
+                fragment = mapsFragment;
+                break;
         }
+
+//        if (id == R.id.nav_github_auth) {
+//            fragment = gitRepoFragment;
+//        } else if (id == R.id.nav_maps) {
+//            fragment = mapsFragment;
+//        } else if (id == R.id.nav_calculator) {
+//
+//        } else if (id == R.id.nav_manage) {
+//
+//        } else if (id == R.id.nav_share) {
+//
+//        } else if (id == R.id.nav_send) {
+//
+//        }
 
         if (fragment != null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment, fragment).commit();
