@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,60 +27,86 @@ public class GitAuthActivity extends AppCompatActivity {
 
     Context context = this;
     Button button;
-    EditText editText;
+    EditText editTextLog, editTextPass;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_git_auth);
         button = findViewById(R.id.button);
-        editText = findViewById(R.id.editText2);
+        editTextLog = findViewById(R.id.editTextLog);
+        editTextPass = findViewById(R.id.editTextPass);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!editText.getText().toString().equals("")) {
+                if (!editTextLog.getText().toString().equals("")) {
                     new GitConnectionTask().execute("https://api.github.com/users/" +
-                                                            editText.getText().toString() + "/repos");
+                                                            editTextLog.getText().toString() + "/repos");
                 } else {
                     Toast.makeText(context, R.string.toast_username, Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
+        editTextPass.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (editTextPass.getText().toString().equals("")) {
+                    button.setText(R.string.button_repo);
+                } else {
+                    button.setText(R.string.button_auth);
+                }
+            }
+        });
+
+        //Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/login/oauth/authorize"));
     }
 
     class GitConnectionTask extends AsyncTask<String, Void, String[]> {
 
         String owner = "";
+        String pass;
 
         @Override
         protected void onPreExecute() {
             button.setEnabled(false);
+            pass = editTextPass.getText().toString();
         }
 
         @Override
         protected String[] doInBackground(String... newUrl) {
-            HttpsURLConnection connection;
             String resultJson = "";
             JSONArray jsonArray;
             String[] repositories = null;
 
-            try {
-                URL url = new URL(newUrl[0]);
-                connection = (HttpsURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setReadTimeout(10000);
-                connection.connect();
+            if (pass.equals("")) {
+                HttpsURLConnection connection;
                 try {
-                    int responseCode = connection.getResponseCode();
-                    if (responseCode == HttpsURLConnection.HTTP_OK) {
-                        resultJson = streamConverse(connection.getInputStream());
+                    URL url = new URL(newUrl[0]);
+                    connection = (HttpsURLConnection) url.openConnection();
+                    connection.setRequestMethod("GET");
+                    connection.setReadTimeout(10000);
+                    connection.connect();
+                    try {
+                        int responseCode = connection.getResponseCode();
+                        if (responseCode == HttpsURLConnection.HTTP_OK) {
+                            resultJson = streamConverse(connection.getInputStream());
+                        }
+                    } finally {
+                        connection.disconnect();
                     }
-                } finally {
-                    connection.disconnect();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+            } else {
+                // Сюда пихаем авторизацию
             }
 
             if (!resultJson.equals("")) {
@@ -104,11 +132,11 @@ public class GitAuthActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String[] result) {
             if (!(result == null)) {
-                Intent intent = new Intent(context, MainActivity.class);
-                intent.putExtra("Repositories", result);
-                intent.putExtra("Owner", owner);
-                startActivity(intent);
-                editText.setText("");
+                Intent intentMainActivity = new Intent(context, MainActivity.class);
+                intentMainActivity.putExtra("Repositories", result);
+                intentMainActivity.putExtra("Owner", owner);
+                startActivity(intentMainActivity);
+                editTextLog.setText("");
             } else {
                 Toast.makeText(context, R.string.toast_connection, Toast.LENGTH_SHORT).show();
             }
