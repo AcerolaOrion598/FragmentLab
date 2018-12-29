@@ -13,9 +13,9 @@
             android:icon="@android:drawable/ic_menu_mapmode"
             android:title="@string/maps" />
         <item
-            android:id="@+id/nav_calculator"
+            android:id="@+id/nav_contacts"
             android:icon="@android:drawable/ic_menu_compass"
-            android:title="@string/calculator" />
+            android:title="@string/contacts" />
         <item
             android:id="@+id/nav_manage"
             android:icon="@drawable/ic_menu_manage"

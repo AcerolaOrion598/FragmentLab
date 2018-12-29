@@ -3,27 +3,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".GitRepoFragment">
+    tools:context=".ContactsFragment">
+
+    <!-- TODO: Update blank fragment layout -->
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/titleRepoTV"
+            android:id="@+id/titleContactsTV"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/title_repo_text_view"
+            android:text="@string/title_contacts_text_view"
             android:textAlignment="center"
-            android:textAllCaps="false"
             android:textSize="30sp"
             android:textStyle="bold" />
 
         <ListView
-            android:id="@+id/list_view_repo"
+            android:id="@+id/list_view_contacts"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent" />
     </LinearLayout>
-
 </android.support.constraint.ConstraintLayout>

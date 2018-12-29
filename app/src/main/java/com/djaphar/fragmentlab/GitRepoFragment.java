@@ -25,8 +25,8 @@ public class GitRepoFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_git_repo, container, false);
 
-        listView = rootView.findViewById(R.id.list_view_main);
-        titleTV = rootView.findViewById(R.id.titleTV);
+        listView = rootView.findViewById(R.id.list_view_repo);
+        titleTV = rootView.findViewById(R.id.titleRepoTV);
         return rootView;
     }
 

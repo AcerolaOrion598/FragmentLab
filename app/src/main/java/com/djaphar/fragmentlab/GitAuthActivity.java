@@ -106,6 +106,7 @@ public class GitAuthActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             } else {
+
                 // Сюда пихаем авторизацию
             }
 

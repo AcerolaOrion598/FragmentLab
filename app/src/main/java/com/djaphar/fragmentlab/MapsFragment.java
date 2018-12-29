@@ -3,9 +3,7 @@ package com.djaphar.fragmentlab;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,6 +14,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.directions.route.AbstractRouting;
+import com.directions.route.Route;
+import com.directions.route.RouteException;
+import com.directions.route.Routing;
+import com.directions.route.RoutingListener;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -30,22 +33,11 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-public class MapsFragment extends Fragment implements OnMapReadyCallback {
+public class MapsFragment extends Fragment implements OnMapReadyCallback, RoutingListener {
 
     MainActivity mainActivity;
     GoogleMap gMap;
@@ -53,7 +45,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     Task location;
     final float defaultZoom = 15f;
     LatLng latLng;
-    Polyline currentPolyline;
+    private List<Polyline> polylines;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -70,6 +62,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         Objects.requireNonNull(supportMapFragment).getMapAsync(this);
+        polylines = new ArrayList<>();
     }
 
     @Override
@@ -88,6 +81,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         FusedLocationProviderClient fusedLocationProviderClient =
                         LocationServices.getFusedLocationProviderClient(thisFragment);
         try {
+            // TODO: Изменить lastLocation на запрос реального местоположения
             location = fusedLocationProviderClient.getLastLocation();
             //location = fusedLocationProviderClient.requestLocationUpdates();
             location.addOnCompleteListener(new OnCompleteListener() {
@@ -114,20 +108,73 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         //Marker markerHome = gMap.addMarker(new MarkerOptions().position(new LatLng(55.891765, 37.725044)).title("Дом"));
         Marker markerInstitute = gMap.addMarker(new MarkerOptions().position(new LatLng(55.794317, 37.701400)).title("Универ"));
         Marker markerMe = gMap.addMarker(new MarkerOptions().position(latLng).title("Я тут"));
-        buildRoute(markerInstitute, markerMe);
+        buildRoute(markerMe, markerInstitute);
     }
 
     private void buildRoute(Marker markerStart, Marker markerFinish) {
-        String url = getUrl(markerStart.getPosition(), markerFinish.getPosition(), "driving");
-        //Строим маршрут
+        Routing routing = new Routing.Builder()
+                .travelMode(AbstractRouting.TravelMode.DRIVING)
+                .withListener(this)
+                .alternativeRoutes(false)
+                .waypoints(markerStart.getPosition(), markerFinish.getPosition())
+                .key(getString(R.string.mapDirectionsKey))
+                .build();
+        routing.execute();
     }
 
-    private String getUrl(LatLng start, LatLng finish, String directionMode) {
-        String origin = "origin=" + start.latitude + "," + start.longitude;
-        String destination = "destination=" + finish.latitude + "," + finish.longitude;
-        String mode = "mode=" + directionMode;
-        String params = origin + "&" + destination + "&" + mode;
+//    private String getUrl(LatLng start, LatLng finish, String directionMode) {
+//        String origin = "origin=" + start.latitude + "," + start.longitude;
+//        String destination = "destination=" + finish.latitude + "," + finish.longitude;
+//        String mode = "mode=" + directionMode;
+//        String params = origin + "&" + destination + "&" + mode;
+//
+//        return "https://maps.googleapis.com/maps/api/directions/json?" + params + "&key=" + getString(R.string.mapDirectionsKey);
+//    }
 
-        return "https://maps.googleapis.com/maps/api/directions/json?" + params + "&key=" + getString(R.string.mapDirectionsKey);
+    @Override
+    public void onRoutingFailure(RouteException e) {
+        if(e != null) {
+            Toast.makeText(thisFragment, "Ошибка: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }else {
+            Toast.makeText(thisFragment, "Что-то пошло не так, Попробуйте снова", Toast.LENGTH_SHORT).show();
+        }
     }
+
+    @Override
+    public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex) {
+
+        if(polylines.size() > 0) {
+            for (Polyline poly : polylines) {
+                poly.remove();
+            }
+        }
+
+        polylines = new ArrayList<>();
+        //add route(s) to the map.
+        for (int i = 0; i <route.size(); i++) {
+
+            PolylineOptions polyOptions = new PolylineOptions();
+            polyOptions.color(R.color.primary_dark_material_light);
+            polyOptions.width(10 + i * 3);
+            polyOptions.addAll(route.get(i).getPoints());
+            Polyline polyline = gMap.addPolyline(polyOptions);
+            polylines.add(polyline);
+
+            Toast.makeText(thisFragment,"Route " + (i+1) + ": distance - "
+                     + route.get(i).getDistanceValue()+": duration - " + route.get(i).getDurationValue(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRoutingStart() { }
+
+    @Override
+    public void onRoutingCancelled() { }
+
+//    public void erasePolylines(){
+//        for (Polyline line : polylines) {
+//            line.remove();
+//        }
+//        polylines.clear();
+//    }
 }
