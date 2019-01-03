@@ -12,6 +12,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.directions.route.AbstractRouting;
@@ -40,6 +44,10 @@ import java.util.Objects;
 public class MapsFragment extends Fragment implements OnMapReadyCallback, RoutingListener {
 
     MainActivity mainActivity;
+    Button buttonMe, buttonInst;
+    Spinner spinnerTravelMode;
+    AbstractRouting.TravelMode mode;
+    Marker markerHome, markerInst, markerMe;
     GoogleMap gMap;
     Context thisFragment;
     Task location;
@@ -55,6 +63,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
         assert mainActivity != null;
         thisFragment = mainActivity.mapsFragment.getContext();
 
+        buttonMe = rootView.findViewById(R.id.buttonMe);
+        buttonInst = rootView.findViewById(R.id.buttonInst);
+        spinnerTravelMode = rootView.findViewById(R.id.spinnerTravelMode);
+
         return rootView;
     }
 
@@ -63,7 +75,79 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
         SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         Objects.requireNonNull(supportMapFragment).getMapAsync(this);
         polylines = new ArrayList<>();
+
+        String[] data = {getString(R.string.mode_walking), getString(R.string.mode_driving),
+                                    getString(R.string.mode_transit), getString(R.string.mode_biking)};
+        // TODO Адекватный внешний вид спиннера
+        //SimpleAdapter adapter = new SimpleAdapter(thisFragment, data, R.layout.travel_mode_spinner_pattern, new int[] {R.id.spinnerTravelModeTV});
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(thisFragment, android.R.layout.simple_spinner_item, data);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+
+        spinnerTravelMode.setAdapter(adapter);
+        spinnerTravelMode.setPrompt(getString(R.string.travel_mode_spinner_title));
+
+        spinnerTravelMode.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                switch (i) {
+                    case 0:
+                        mode = AbstractRouting.TravelMode.WALKING;
+                        break;
+                    case 1:
+                        mode = AbstractRouting.TravelMode.DRIVING;
+                        break;
+                    case 2:
+                        mode = AbstractRouting.TravelMode.TRANSIT;
+                        break;
+                    case 3:
+                        mode = AbstractRouting.TravelMode.BIKING;
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) { }
+        });
+
+        buttonMe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mode != null) {
+                    buildRoute(markerMe, markerHome, mode);
+                } else {
+                    Toast.makeText(thisFragment, getString(R.string.mode_null), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        buttonInst.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mode != null) {
+                    buildRoute(markerInst, markerHome, mode);
+                } else {
+                    Toast.makeText(thisFragment, getString(R.string.mode_null), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
+
+    //TODO Так намного лучше, но не работает
+//    public void onRouteBtnClick(View view) {
+//        Marker start;
+//        if (view.getId() == R.id.buttonMe) {
+//            start = markerMe;
+//        } else {
+//            start = markerInst;
+//        }
+//
+//        if (mode != null) {
+//            buildRoute(start, markerHome, mode);
+//        } else {
+//            Toast.makeText(thisFragment, getString(R.string.mode_null), Toast.LENGTH_SHORT).show();
+//        }
+//    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -74,6 +158,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+        gMap.getUiSettings().setMyLocationButtonEnabled(false);
         gMap.setMyLocationEnabled(true);
     }
 
@@ -105,15 +190,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
 
     public void moveCameraAndSetMarkers(LatLng latLng, float zoom) {
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
-        //Marker markerHome = gMap.addMarker(new MarkerOptions().position(new LatLng(55.891765, 37.725044)).title("Дом"));
-        Marker markerInstitute = gMap.addMarker(new MarkerOptions().position(new LatLng(55.794317, 37.701400)).title("Универ"));
-        Marker markerMe = gMap.addMarker(new MarkerOptions().position(latLng).title("Я тут"));
-        buildRoute(markerMe, markerInstitute);
+        markerHome = gMap.addMarker(new MarkerOptions().position(new LatLng(55.891765, 37.725044)).title("Дом"));
+        markerInst = gMap.addMarker(new MarkerOptions().position(new LatLng(55.794317, 37.701400)).title("Универ"));
+        markerMe = gMap.addMarker(new MarkerOptions().position(latLng).title("Я тут"));
     }
 
-    private void buildRoute(Marker markerStart, Marker markerFinish) {
+    private void buildRoute(Marker markerStart, Marker markerFinish, AbstractRouting.TravelMode mode) {
         Routing routing = new Routing.Builder()
-                .travelMode(AbstractRouting.TravelMode.DRIVING)
+                .travelMode(mode)
                 .withListener(this)
                 .alternativeRoutes(false)
                 .waypoints(markerStart.getPosition(), markerFinish.getPosition())

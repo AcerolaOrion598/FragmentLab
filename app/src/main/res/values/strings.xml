@@ -21,4 +21,12 @@
     <string name="github">GitHub</string>
     <string name="maps">Maps</string>
     <string name="contacts">Contacts</string>
+    <string name="button_inst">От Института</string>
+    <string name="button_me">От Меня</string>
+    <string name="mode_walking">Пешком</string>
+    <string name="mode_driving">На машине</string>
+    <string name="mode_transit">Общественный транспорт</string>
+    <string name="mode_biking">Велосипед</string>
+    <string name="mode_null">Выберете режим маршрута!</string>
+    <string name="travel_mode_spinner_title">Выберете режим маршрута</string>
 </resources>
