@@ -21,8 +21,10 @@
     <string name="github">GitHub</string>
     <string name="maps">Maps</string>
     <string name="contacts">Contacts</string>
+    <string name="info">Info</string>
     <string name="button_inst">От Института</string>
-    <string name="button_me">От Меня</string>
+    <string name="button_me_route">От Меня</string>
+    <string name="button_me_location">Моя геолокация</string>
     <string name="mode_walking">Пешком</string>
     <string name="mode_driving">На машине</string>
     <string name="mode_transit">Общественный транспорт</string>

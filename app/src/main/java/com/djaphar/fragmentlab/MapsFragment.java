@@ -80,7 +80,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
                                     getString(R.string.mode_transit), getString(R.string.mode_biking)};
         // TODO Адекватный внешний вид спиннера
         //SimpleAdapter adapter = new SimpleAdapter(thisFragment, data, R.layout.travel_mode_spinner_pattern, new int[] {R.id.spinnerTravelModeTV});
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(thisFragment, android.R.layout.simple_spinner_item, data);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(thisFragment, android.R.layout.simple_spinner_item, data);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
 
         spinnerTravelMode.setAdapter(adapter);
@@ -113,10 +113,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
         buttonMe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mode != null) {
-                    buildRoute(markerMe, markerHome, mode);
+                if (buttonMe.getText().toString().equals(getString(R.string.button_me_route))) {
+                    if (mode != null) {
+                        buildRoute(markerMe, markerHome, mode);
+                    } else {
+                        Toast.makeText(thisFragment, getString(R.string.mode_null), Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    Toast.makeText(thisFragment, getString(R.string.mode_null), Toast.LENGTH_SHORT).show();
+                    getDeviceLocation();
                 }
             }
         });
@@ -172,11 +176,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
             location.addOnCompleteListener(new OnCompleteListener() {
                 @Override
                 public void onComplete(@NonNull Task task) {
+                    markerHome = gMap.addMarker(new MarkerOptions().position(new LatLng(55.891765, 37.725044)).title("Дом"));
+                    markerInst = gMap.addMarker(new MarkerOptions().position(new LatLng(55.794317, 37.701400)).title("Универ"));
                     if (task.isSuccessful()) {
                         Location currentLocation = (Location) task.getResult();
                         latLng = new LatLng(Objects.requireNonNull(currentLocation).getLatitude(), currentLocation.getLongitude());
-                        moveCameraAndSetMarkers(latLng, defaultZoom);
+                        moveCameraAndSetMarkerMe(latLng, defaultZoom);
                     } else {
+                        buttonMe.setText(getString(R.string.button_me_location));
                         Toast.makeText(thisFragment, "Невозможно получить текущее местоположение",
                                                                                     Toast.LENGTH_LONG).show();
                         latLng = new LatLng(0, 0);
@@ -188,10 +195,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
         }
     }
 
-    public void moveCameraAndSetMarkers(LatLng latLng, float zoom) {
+    public void moveCameraAndSetMarkerMe(LatLng latLng, float zoom) {
+        buttonMe.setText(getString(R.string.button_me_route));
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
-        markerHome = gMap.addMarker(new MarkerOptions().position(new LatLng(55.891765, 37.725044)).title("Дом"));
-        markerInst = gMap.addMarker(new MarkerOptions().position(new LatLng(55.794317, 37.701400)).title("Универ"));
         markerMe = gMap.addMarker(new MarkerOptions().position(latLng).title("Я тут"));
     }
 

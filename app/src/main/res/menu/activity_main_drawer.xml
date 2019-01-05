@@ -17,9 +17,9 @@
             android:icon="@android:drawable/ic_menu_compass"
             android:title="@string/contacts" />
         <item
-            android:id="@+id/nav_manage"
+            android:id="@+id/nav_info"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:title="@string/info" />
     </group>
 
     <item android:title="Communicate">

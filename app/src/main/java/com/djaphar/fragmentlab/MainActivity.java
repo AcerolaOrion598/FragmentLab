@@ -11,14 +11,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    Fragment gitRepoFragment, mapsFragment, contactsFragment;
+    Fragment gitRepoFragment, mapsFragment, contactsFragment, infoFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +45,7 @@ public class MainActivity extends AppCompatActivity
 
         mapsFragment = new MapsFragment();
         contactsFragment = new ContactsFragment();
+        infoFragment = new InfoFragment();
 
         navigationView.setCheckedItem(R.id.nav_github_auth);
         getSupportFragmentManager().beginTransaction().add(R.id.main_fragment, gitRepoFragment).commit();
@@ -94,6 +94,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.nav_contacts:
                 fragment = contactsFragment;
+                break;
+            case R.id.nav_info:
+                fragment = infoFragment;
                 break;
         }
 
