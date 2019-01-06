@@ -62,9 +62,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_maps, container, false);
         mainActivity = (MainActivity) getActivity();
-        assert mainActivity != null;
         thisFragment = this.getContext();
-
         buttonMe = rootView.findViewById(R.id.buttonMe);
         buttonInst = rootView.findViewById(R.id.buttonInst);
         spinnerTravelMode = rootView.findViewById(R.id.spinnerTravelMode);
@@ -143,22 +141,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
         }
     }
 
-    //TODO Так намного лучше, но не работает
-//    public void onRouteBtnClick(View view) {
-//        Marker start;
-//        if (view.getId() == R.id.buttonMe) {
-//            start = markerMe;
-//        } else {
-//            start = markerInst;
-//        }
-//
-//        if (mode != null) {
-//            buildRoute(start, markerHome, mode);
-//        } else {
-//            Toast.makeText(thisFragment, getString(R.string.mode_null), Toast.LENGTH_SHORT).show();
-//        }
-//    }
-
     public boolean hasPermissions() {
         int res;
         String[] permissions = new String[] {Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -217,7 +199,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
                         latLng = new LatLng(Objects.requireNonNull(currentLocation).getLatitude(), currentLocation.getLongitude());
                         moveCameraAndSetMarkerMe(latLng, defaultZoom);
                     } else {
-                        buttonMe.setText(getString(R.string.button_me_location));
+                        //buttonMe.setText(getString(R.string.button_me_location));
                         Toast.makeText(thisFragment, "Невозможно получить текущее местоположение",
                                                                                     Toast.LENGTH_LONG).show();
                         latLng = new LatLng(0, 0);

@@ -20,6 +20,9 @@
             android:id="@+id/nav_info"
             android:icon="@drawable/ic_menu_manage"
             android:title="@string/info" />
+        <item
+            android:id="@+id/nav_sencor_and_camera"
+            android:title="@string/sensor_and_camera" />
     </group>
 
     <item android:title="Communicate">
