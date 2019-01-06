@@ -1,6 +1,9 @@
 package com.djaphar.fragmentlab;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
@@ -23,6 +26,8 @@ public class ContactsFragment extends Fragment {
     MainActivity mainActivity;
     ListView listViewContacts;
     HashMap<String, String> nameNumberHashMap = new HashMap<>();
+    private static final int PERMISSION_REQUEST_CODE = 123;
+    boolean flag = false;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -30,14 +35,44 @@ public class ContactsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_contacts, container, false);
         mainActivity = (MainActivity) getActivity();
         listViewContacts = rootView.findViewById(R.id.list_view_contacts);
+
         return rootView;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        if (hasPermissions()) {
+            getContacts();
+        } else {
+            requestPerms();
+        }
+    }
+
+    private boolean hasPermissions() {
+        int res;
+        String[] permissions = new String[] {Manifest.permission.READ_CONTACTS};
+
+        for (String perms : permissions) {
+            res = Objects.requireNonNull(this.getContext()).checkCallingOrSelfPermission(perms);
+            if (!(res == PackageManager.PERMISSION_GRANTED)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void requestPerms() {
+        String[] permissions = new String[] {Manifest.permission.READ_CONTACTS};
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(permissions, PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    private void getContacts() {
         Cursor cursor = mainActivity.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                 new String[] {ContactsContract.CommonDataKinds.Phone._ID, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                         ContactsContract.CommonDataKinds.Phone.NUMBER}, null , null, null);
+                new String[] {ContactsContract.CommonDataKinds.Phone._ID, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                        ContactsContract.CommonDataKinds.Phone.NUMBER}, null , null, null);
         mainActivity.startManagingCursor(cursor); // TODO Желательно переделать через CursorLoader
 
         if (Objects.requireNonNull(cursor).getCount() > 0) {

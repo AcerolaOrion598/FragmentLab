@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -54,6 +55,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
     final float defaultZoom = 15f;
     LatLng latLng;
     private List<Polyline> polylines;
+    private static final int PERMISSION_REQUEST_CODE = 123;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -61,7 +63,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
         View rootView = inflater.inflate(R.layout.fragment_maps, container, false);
         mainActivity = (MainActivity) getActivity();
         assert mainActivity != null;
-        thisFragment = mainActivity.mapsFragment.getContext();
+        thisFragment = this.getContext();
 
         buttonMe = rootView.findViewById(R.id.buttonMe);
         buttonInst = rootView.findViewById(R.id.buttonInst);
@@ -113,14 +115,18 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
         buttonMe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (buttonMe.getText().toString().equals(getString(R.string.button_me_route))) {
-                    if (mode != null) {
-                        buildRoute(markerMe, markerHome, mode);
+                if (hasPermissions()) {
+                    if (buttonMe.getText().toString().equals(getString(R.string.button_me_route))) {
+                        if (mode != null) {
+                            buildRoute(markerMe, markerHome, mode);
+                        } else {
+                            Toast.makeText(thisFragment, getString(R.string.mode_null), Toast.LENGTH_SHORT).show();
+                        }
                     } else {
-                        Toast.makeText(thisFragment, getString(R.string.mode_null), Toast.LENGTH_SHORT).show();
+                        getDeviceLocation();
                     }
                 } else {
-                    getDeviceLocation();
+                    requestPerms();
                 }
             }
         });
@@ -128,10 +134,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
         buttonInst.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mode != null) {
-                    buildRoute(markerInst, markerHome, mode);
+                if (hasPermissions()) {
+                    if (mode != null) {
+                        buildRoute(markerInst, markerHome, mode);
+                    } else {
+                        Toast.makeText(thisFragment, getString(R.string.mode_null), Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    Toast.makeText(thisFragment, getString(R.string.mode_null), Toast.LENGTH_SHORT).show();
+                    requestPerms();
                 }
             }
         });
@@ -152,6 +162,29 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
 //            Toast.makeText(thisFragment, getString(R.string.mode_null), Toast.LENGTH_SHORT).show();
 //        }
 //    }
+
+    public boolean hasPermissions() {
+        int res;
+        String[] permissions = new String[] {Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.ACCESS_FINE_LOCATION};
+
+        for (String perms : permissions) {
+            res = Objects.requireNonNull(this.getContext()).checkCallingOrSelfPermission(perms);
+            if (!(res == PackageManager.PERMISSION_GRANTED)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void requestPerms() {
+        String[] permissions = new String[] {Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION};
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(permissions, PERMISSION_REQUEST_CODE);
+        }
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
