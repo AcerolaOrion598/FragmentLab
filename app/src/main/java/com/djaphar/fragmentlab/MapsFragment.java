@@ -117,11 +117,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
             public void onClick(View view) {
                 if (hasPermissions()) {
                     if (buttonMe.getText().toString().equals(getString(R.string.button_me_route))) {
-                        if (mode != null) {
-                            buildRoute(markerMe, markerHome, mode);
-                        } else {
-                            Toast.makeText(thisFragment, getString(R.string.mode_null), Toast.LENGTH_SHORT).show();
-                        }
+                        buildRouteFromMarker(markerMe);
                     } else {
                         getDeviceLocation();
                     }
@@ -134,17 +130,17 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
         buttonInst.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (hasPermissions()) {
-                    if (mode != null) {
-                        buildRoute(markerInst, markerHome, mode);
-                    } else {
-                        Toast.makeText(thisFragment, getString(R.string.mode_null), Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    requestPerms();
-                }
+                buildRouteFromMarker(markerInst);
             }
         });
+    }
+
+    private void buildRouteFromMarker(Marker markerStart) {
+        if (mode != null) {
+            buildRoute(markerStart, markerHome, mode);
+        } else {
+            Toast.makeText(thisFragment, getString(R.string.mode_null), Toast.LENGTH_SHORT).show();
+        }
     }
 
     //TODO Так намного лучше, но не работает
@@ -184,6 +180,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(permissions, PERMISSION_REQUEST_CODE);
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        getDeviceLocation();
     }
 
     @Override
