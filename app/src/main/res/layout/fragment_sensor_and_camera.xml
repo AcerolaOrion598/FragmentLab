@@ -8,13 +8,15 @@
 
     <ImageView
         android:id="@+id/testImageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="130dp"
+        android:layout_height="200dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
         android:src="@mipmap/ic_launcher_round"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.62"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -34,14 +36,19 @@
             android:layout_weight="1"
             android:text="@string/button_take_picture" />
 
-        <Button
-            android:id="@+id/savePictureButton"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:enabled="false"
-            android:text="@string/button_save_picture" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/batteryTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="Заряд батареи:"
+        app:layout_constraintEnd_toStartOf="@+id/testImageView"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
