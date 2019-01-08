@@ -8,25 +8,36 @@
 
     <ImageView
         android:id="@+id/testImageView"
-        android:layout_width="130dp"
-        android:layout_height="200dp"
+        android:layout_width="236dp"
+        android:layout_height="420dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
         android:src="@mipmap/ic_launcher_round"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.62"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.948" />
 
     <LinearLayout
+        android:id="@+id/linearLayout2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
+
+        <Button
+            android:id="@+id/accelButton"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/button_accel_on" />
 
         <Button
             android:id="@+id/takePictureButton"
@@ -39,13 +50,13 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/batteryTV"
+        android:id="@+id/sensorTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:text="Заряд батареи:"
+        android:text="@string/accel_text_view"
         app:layout_constraintEnd_toStartOf="@+id/testImageView"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
