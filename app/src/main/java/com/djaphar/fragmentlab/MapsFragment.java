@@ -148,7 +148,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
 
         for (String perms : permissions) {
             res = Objects.requireNonNull(this.getContext()).checkCallingOrSelfPermission(perms);
-            if (!(res == PackageManager.PERMISSION_GRANTED)) {
+            if (res != PackageManager.PERMISSION_GRANTED) {
                 return false;
             }
         }

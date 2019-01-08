@@ -27,7 +27,6 @@ public class ContactsFragment extends Fragment {
     ListView listViewContacts;
     HashMap<String, String> nameNumberHashMap = new HashMap<>();
     private static final int PERMISSION_REQUEST_CODE = 123;
-    boolean flag = false;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -54,7 +53,7 @@ public class ContactsFragment extends Fragment {
 
         for (String perms : permissions) {
             res = Objects.requireNonNull(this.getContext()).checkCallingOrSelfPermission(perms);
-            if (!(res == PackageManager.PERMISSION_GRANTED)) {
+            if (res != PackageManager.PERMISSION_GRANTED) {
                 return false;
             }
         }
@@ -76,13 +75,14 @@ public class ContactsFragment extends Fragment {
 
     private void getContacts() {
         Cursor cursor = mainActivity.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                new String[] {ContactsContract.CommonDataKinds.Phone._ID, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                new String[] {ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
                         ContactsContract.CommonDataKinds.Phone.NUMBER}, null , null, null);
+
         mainActivity.startManagingCursor(cursor); // TODO Желательно переделать через CursorLoader
 
         if (Objects.requireNonNull(cursor).getCount() > 0) {
             while (cursor.moveToNext()) {
-                nameNumberHashMap.put(cursor.getString(1), cursor.getString(2));
+                nameNumberHashMap.put(cursor.getString(0), cursor.getString(1));
             }
 
             List<HashMap<String, String>> hashMapList = new ArrayList<>();

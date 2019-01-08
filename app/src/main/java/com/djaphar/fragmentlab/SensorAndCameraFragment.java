@@ -137,7 +137,7 @@ public class SensorAndCameraFragment extends Fragment {
 
         for (String perms : permissions) {
             res = Objects.requireNonNull(this.getContext()).checkCallingOrSelfPermission(perms);
-            if (!(res == PackageManager.PERMISSION_GRANTED)) {
+            if (res != PackageManager.PERMISSION_GRANTED) {
                 return false;
             }
         }

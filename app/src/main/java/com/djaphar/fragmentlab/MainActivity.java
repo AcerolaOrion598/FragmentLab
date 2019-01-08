@@ -17,7 +17,9 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    Fragment gitRepoFragment, mapsFragment, contactsFragment, infoFragment, sensorAndCameraFragment;
+    Fragment gitRepoFragment, mapsFragment, contactsFragment, infoFragment, sensorAndCameraFragment, currentFragment;
+    int currentCheckedItem;
+    NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +36,7 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         gitRepoFragment = new GitRepoFragment();
@@ -50,6 +52,15 @@ public class MainActivity extends AppCompatActivity
 
         navigationView.setCheckedItem(R.id.nav_github_auth);
         getSupportFragmentManager().beginTransaction().add(R.id.main_fragment, gitRepoFragment).commit();
+        currentCheckedItem = R.id.nav_github_auth;
+        currentFragment = gitRepoFragment;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        navigationView.setCheckedItem(currentCheckedItem);
+        getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment, currentFragment).commit();
     }
 
     @Override
@@ -120,6 +131,8 @@ public class MainActivity extends AppCompatActivity
 
         if (fragment != null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment, fragment).commit();
+            currentCheckedItem = id;
+            currentFragment = fragment;
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
