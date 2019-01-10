@@ -1,4 +1,4 @@
-package com.djaphar.fragmentlab;
+package com.djaphar.fragmentlab.Fragments;
 
 import android.Manifest;
 import android.content.Context;
@@ -24,6 +24,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.djaphar.fragmentlab.MainActivity;
+import com.djaphar.fragmentlab.R;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -39,17 +42,17 @@ public class SensorAndCameraFragment extends Fragment {
     MainActivity mainActivity;
     ImageView testImageView;
     TextView sensorTV;
-    Button takePictureButton, accelButton;
+    Button takePictureButton, accelerometerButton;
     Uri outputFileUri;
     SensorManager sensorManager;
-    Sensor sensorAccel;
+    Sensor sensorAccelerometer;
     Timer timer;
     TimerTask task;
 
     StringBuilder stringBuilder = new StringBuilder();
-    float[] valuesAccel = new float[3];
-//    float[] valuesAccelGravity = new float[3];
-//    float[] valuesAccelMotion = new float[3];
+    float[] valuesAccelerometer = new float[3];
+//    float[] valuesAccelerometerGravity = new float[3];
+//    float[] valuesAccelerometerMotion = new float[3];
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -59,7 +62,7 @@ public class SensorAndCameraFragment extends Fragment {
         testImageView = rootView.findViewById(R.id.testImageView);
         sensorTV = rootView.findViewById(R.id.sensorTV);
         takePictureButton = rootView.findViewById(R.id.takePictureButton);
-        accelButton = rootView.findViewById(R.id.accelButton);
+        accelerometerButton = rootView.findViewById(R.id.accelerometerButton);
         return rootView;
     }
 
@@ -78,20 +81,20 @@ public class SensorAndCameraFragment extends Fragment {
         });
 
         sensorManager = (SensorManager) mainActivity.getSystemService(Context.SENSOR_SERVICE);
-        sensorAccel = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        sensorAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        accelButton.setOnClickListener(new View.OnClickListener() {
+        accelerometerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (accelButton.getText().toString().equals(getString(R.string.button_accel_on))) {
-                    accelButton.setText(getString(R.string.button_accel_off));
-                    sensorManager.registerListener(listener, sensorAccel, SensorManager.SENSOR_DELAY_UI);
+                if (accelerometerButton.getText().toString().equals(getString(R.string.button_accelerometer_on))) {
+                    accelerometerButton.setText(getString(R.string.button_accelerometer_off));
+                    sensorManager.registerListener(listener, sensorAccelerometer, SensorManager.SENSOR_DELAY_UI);
                     timer = new Timer();
                     task = new MyTimerTask();
                     timer.schedule(task, 0, 250);
                 } else {
-                    accelButton.setText(getString(R.string.button_accel_on));
-                    sensorTV.setText(getString(R.string.accel_text_view));
+                    accelerometerButton.setText(getString(R.string.button_accelerometer_on));
+                    sensorTV.setText(getString(R.string.accelerometer_text_view));
                     sensorManager.unregisterListener(listener);
                     timer.cancel();
                 }
@@ -102,7 +105,7 @@ public class SensorAndCameraFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if (accelButton.getText().toString().equals(getString(R.string.button_accel_off))) {
+        if (accelerometerButton.getText().toString().equals(getString(R.string.button_accelerometer_off))) {
             sensorManager.unregisterListener(listener);
             timer.cancel();
         }
@@ -111,8 +114,8 @@ public class SensorAndCameraFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (accelButton.getText().toString().equals(getString(R.string.button_accel_off))) {
-            sensorManager.registerListener(listener, sensorAccel, SensorManager.SENSOR_DELAY_UI);
+        if (accelerometerButton.getText().toString().equals(getString(R.string.button_accelerometer_off))) {
+            sensorManager.registerListener(listener, sensorAccelerometer, SensorManager.SENSOR_DELAY_UI);
             task = new MyTimerTask();
             timer = new Timer();
             timer.schedule(task, 0, 250);
@@ -166,11 +169,11 @@ public class SensorAndCameraFragment extends Fragment {
     private void showInfo() {
         stringBuilder.setLength(0);
 
-//        stringBuilder.append("Accel: ").append(format(valuesAccel))
-//                .append("\nAccel motion: ").append(format(valuesAccelMotion))
-//                .append("\nAccel gravity: ").append(format(valuesAccelGravity));
+//        stringBuilder.append("Accelerometer: ").append(format(valuesAccelerometer))
+//                .append("\nAccelerometer motion: ").append(format(valuesAccelerometerMotion))
+//                .append("\nAccelerometer gravity: ").append(format(valuesAccelGravity));
 
-        stringBuilder.append("Accel: ").append(format(valuesAccel));
+        stringBuilder.append("Accelerometer: ").append(format(valuesAccelerometer));
         sensorTV.setText(stringBuilder);
     }
 
@@ -183,12 +186,12 @@ public class SensorAndCameraFragment extends Fragment {
         @Override
         public void onSensorChanged(SensorEvent sensorEvent) {
 //            for (int i = 0; i < 3; i++) {
-//                valuesAccel[i] = sensorEvent.values[i];
-//                valuesAccelGravity[i] = (float) (0.1 * sensorEvent.values[i] + 0.9 * valuesAccelGravity[i]);
-//                valuesAccelMotion[i] = sensorEvent.values[i] - valuesAccelGravity[i];
+//                valuesAccelerometer[i] = sensorEvent.values[i];
+//                valuesAccelerometerGravity[i] = (float) (0.1 * sensorEvent.values[i] + 0.9 * valuesAccelerometerGravity[i]);
+//                valuesAccelerometerMotion[i] = sensorEvent.values[i] - valuesAccelerometerGravity[i];
 //            }
 
-            System.arraycopy(sensorEvent.values, 0, valuesAccel, 0, 3);
+            System.arraycopy(sensorEvent.values, 0, valuesAccelerometer, 0, 3);
         }
 
         @Override

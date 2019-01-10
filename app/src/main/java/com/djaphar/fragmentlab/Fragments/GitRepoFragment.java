@@ -1,4 +1,4 @@
-package com.djaphar.fragmentlab;
+package com.djaphar.fragmentlab.Fragments;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.djaphar.fragmentlab.R;
 
 import java.util.Objects;
 

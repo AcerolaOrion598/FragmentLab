@@ -1,4 +1,4 @@
-package com.djaphar.fragmentlab;
+package com.djaphar.fragmentlab.Fragments;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -14,6 +14,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+
+import com.djaphar.fragmentlab.MainActivity;
+import com.djaphar.fragmentlab.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;

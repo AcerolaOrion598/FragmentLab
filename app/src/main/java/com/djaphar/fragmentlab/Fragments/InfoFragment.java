@@ -1,10 +1,12 @@
-package com.djaphar.fragmentlab;
+package com.djaphar.fragmentlab.Fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.djaphar.fragmentlab.R;
 
 public class InfoFragment extends Fragment {
 

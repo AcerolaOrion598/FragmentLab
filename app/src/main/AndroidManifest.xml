@@ -35,8 +35,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".GitAuthActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:name=".GitAuthActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 

@@ -9,8 +9,13 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
+
+import com.djaphar.fragmentlab.Fragments.ContactsFragment;
+import com.djaphar.fragmentlab.Fragments.GitRepoFragment;
+import com.djaphar.fragmentlab.Fragments.InfoFragment;
+import com.djaphar.fragmentlab.Fragments.MapsFragment;
+import com.djaphar.fragmentlab.Fragments.SensorAndCameraFragment;
 
 import java.util.Objects;
 
@@ -72,13 +77,7 @@ public class MainActivity extends AppCompatActivity
             super.onBackPressed();
         }
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
+    
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
