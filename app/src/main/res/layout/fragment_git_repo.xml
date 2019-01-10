@@ -14,7 +14,6 @@
             android:id="@+id/titleRepoTV"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/title_repo_text_view"
             android:textAlignment="center"
             android:textAllCaps="false"
             android:textSize="30sp"

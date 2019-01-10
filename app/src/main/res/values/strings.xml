@@ -15,8 +15,7 @@
     <string name="title_contacts_text_view">Список Контактов</string>
     <string name="github_auth_login_tv">Логин</string>
     <string name="github_auth_password_tv">Пароль</string>
-    <string name="button_repo">Вывести Список Репозиторий</string>
-    <string name="button_auth">Авторизоваться</string>
+    <string name="button_repo">Войти через Github</string>
     <string name="mapKey">AIzaSyAE2JdbXJXk3foFvWP8wX5fYt8PRk1KFmM</string>
     <string name="mapDirectionsKey">AIzaSyBFzOFU9jGL7zY6YRAbAA1lxMISmLAZWVY</string>
     <string name="github">GitHub</string>

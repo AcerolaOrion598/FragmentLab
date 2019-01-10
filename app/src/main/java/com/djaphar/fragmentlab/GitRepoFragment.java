@@ -36,7 +36,7 @@ public class GitRepoFragment extends Fragment {
 
         parsedJson = Objects.requireNonNull(getArguments()).getStringArray("Repos");
         title = Objects.requireNonNull(getArguments()).getString("Own");
-        titleTV.append(" " + title);
+        titleTV.append(getString(R.string.title_repo_text_view) + " " + title);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(Objects.requireNonNull(this.getContext()),
                 android.R.layout.simple_list_item_1, parsedJson);
         listView.setAdapter(adapter);

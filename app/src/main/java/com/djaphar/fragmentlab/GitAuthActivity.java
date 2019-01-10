@@ -2,15 +2,16 @@ package com.djaphar.fragmentlab;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
+
+import com.djaphar.fragmentlab.Interface.GitHubClient;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -23,62 +24,77 @@ import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class GitAuthActivity extends AppCompatActivity {
 
     Context context = this;
     Button button;
-    EditText editTextLog, editTextPass;
+    private String clientId = "dfcb2acb3b77f6368cbc";
+    private String clientSecret = "8c2d12e15d0744e3fe8353e30a8951ca0a4b9264";
+    private String redirectUri = "myapp://callback";
+    private String accessToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_git_auth);
+
         button = findViewById(R.id.button);
-        editTextLog = findViewById(R.id.editTextLog);
-        editTextPass = findViewById(R.id.editTextPass);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!editTextLog.getText().toString().equals("")) {
-                    new GitConnectionTask().execute("https://api.github.com/users/" +
-                                                            editTextLog.getText().toString() + "/repos");
-                } else {
-                    Toast.makeText(context, R.string.toast_username, Toast.LENGTH_SHORT).show();
-                }
+                button.setEnabled(false);
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/login/oauth/authorize"
+                        + "?client_id=" + clientId + "&scope=repo&redirect_uri=" + redirectUri));
+                startActivity(intent);
             }
         });
+    }
 
-        editTextPass.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+        Uri uri = getIntent().getData();
 
-            @Override
-            public void afterTextChanged(Editable editable) {
-                if (editTextPass.getText().toString().equals("")) {
-                    button.setText(R.string.button_repo);
-                } else {
-                    button.setText(R.string.button_auth);
+        if (uri != null && uri.toString().startsWith(redirectUri)) {
+            String code = uri.getQueryParameter("code");
+
+            Retrofit.Builder builder = new Retrofit.Builder()
+                    .baseUrl("https://github.com/")
+                    .addConverterFactory(GsonConverterFactory.create());
+
+            Retrofit retrofit = builder.build();
+            GitHubClient client = retrofit.create(GitHubClient.class);
+            Call<AccessToken> accessTokenCall = client.getToken(clientId, clientSecret, code);
+
+            accessTokenCall.enqueue(new Callback<AccessToken>() {
+                @Override
+                public void onResponse(@NonNull Call<AccessToken> call, @NonNull Response<AccessToken> response) {
+                    if (response.body() != null) {
+                        accessToken = response.body().getToken();
+                        new GitConnectionTask().execute("https://api.github.com/user/repos?access_token=" + accessToken);
+                    }
                 }
-            }
-        });
 
-        //Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/login/oauth/authorize"));
+                @Override
+                public void onFailure(@NonNull Call<AccessToken> call, @NonNull Throwable t) {
+                    Toast.makeText(context, getString(R.string.toast_connection), Toast.LENGTH_SHORT).show();
+                    button.setEnabled(true);
+                }
+            });
+        }
     }
 
     class GitConnectionTask extends AsyncTask<String, Void, String[]> {
 
         String owner = "";
-        String pass;
-
-        @Override
-        protected void onPreExecute() {
-            button.setEnabled(false);
-            pass = editTextPass.getText().toString();
-        }
 
         @Override
         protected String[] doInBackground(String... newUrl) {
@@ -86,7 +102,6 @@ public class GitAuthActivity extends AppCompatActivity {
             JSONArray jsonArray;
             String[] repositories = null;
 
-            if (pass.equals("")) {
                 HttpsURLConnection connection;
                 try {
                     URL url = new URL(newUrl[0]);
@@ -105,10 +120,6 @@ public class GitAuthActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            } else {
-
-                // Сюда пихаем авторизацию
-            }
 
             if (!resultJson.equals("")) {
                 try {
@@ -137,11 +148,9 @@ public class GitAuthActivity extends AppCompatActivity {
                 intentMainActivity.putExtra("Repositories", result);
                 intentMainActivity.putExtra("Owner", owner);
                 startActivity(intentMainActivity);
-                editTextLog.setText("");
             } else {
                 Toast.makeText(context, R.string.toast_connection, Toast.LENGTH_SHORT).show();
             }
-            button.setEnabled(true);
         }
     }
 
