@@ -77,17 +77,6 @@ public class MainActivity extends AppCompatActivity
             super.onBackPressed();
         }
     }
-    
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -114,20 +103,6 @@ public class MainActivity extends AppCompatActivity
                 break;
         }
 
-//        if (id == R.id.nav_github_auth) {
-//            fragment = gitRepoFragment;
-//        } else if (id == R.id.nav_maps) {
-//            fragment = mapsFragment;
-//        } else if (id == R.id.nav_calculator) {
-//
-//        } else if (id == R.id.nav_manage) {
-//
-//        } else if (id == R.id.nav_share) {
-//
-//        } else if (id == R.id.nav_send) {
-//
-//        }
-
         if (fragment != null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment, fragment).commit();
             currentCheckedItem = id;
@@ -136,6 +111,7 @@ public class MainActivity extends AppCompatActivity
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+
         return true;
     }
 }
