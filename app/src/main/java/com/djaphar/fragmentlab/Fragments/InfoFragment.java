@@ -32,7 +32,7 @@ public class InfoFragment extends Fragment {
 
         deviceModelTV = rootView.findViewById(R.id.deviceModelTV);
         androidVersionTV = rootView.findViewById(R.id.androidVersionTV);
-        RamTV = rootView.findViewById(R.id.RAMTV);
+        RamTV = rootView.findViewById(R.id.ramValueTV);
         IPAddressTV = rootView.findViewById(R.id.IPAddressTV);
 
         return rootView;
@@ -46,7 +46,7 @@ public class InfoFragment extends Fragment {
         ActivityManager manager = (ActivityManager) Objects.requireNonNull(getActivity()).getSystemService(Context.ACTIVITY_SERVICE);
         manager.getMemoryInfo(info);
         float ram = info.totalMem;
-        RamTV.append(" " + String.format("%1$.2f", ram / 1024 / 1024 / 1024) + "GB");
+        RamTV.setText(String.format("%1$.2f", ram / 1024 / 1024 / 1024) + "GB");
 
         IPAddressTV.append(" " + getIpAddress());
     }

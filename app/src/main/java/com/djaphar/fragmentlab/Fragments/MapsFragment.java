@@ -230,15 +230,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
         routing.execute();
     }
 
-//    private String getUrl(LatLng start, LatLng finish, String directionMode) {
-//        String origin = "origin=" + start.latitude + "," + start.longitude;
-//        String destination = "destination=" + finish.latitude + "," + finish.longitude;
-//        String mode = "mode=" + directionMode;
-//        String params = origin + "&" + destination + "&" + mode;
-//
-//        return "https://maps.googleapis.com/maps/api/directions/json?" + params + "&key=" + getString(R.string.mapDirectionsKey);
-//    }
-
     @Override
     public void onRoutingFailure(RouteException e) {
         if(e != null) {
@@ -251,14 +242,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
     @Override
     public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex) {
 
-        if(polylines.size() > 0) {
+        if (polylines.size() > 0) {
             for (Polyline poly : polylines) {
                 poly.remove();
             }
         }
 
         polylines = new ArrayList<>();
-        //add route(s) to the map.
         for (int i = 0; i <route.size(); i++) {
 
             PolylineOptions polyOptions = new PolylineOptions();

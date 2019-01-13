@@ -1,5 +1,6 @@
 package com.djaphar.fragmentlab;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -7,9 +8,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.djaphar.fragmentlab.Fragments.ContactsFragment;
 import com.djaphar.fragmentlab.Fragments.GitRepoFragment;
@@ -75,6 +78,7 @@ public class MainActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+            //logout();
         }
     }
 
@@ -101,6 +105,9 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_sencor_and_camera:
                 fragment = sensorAndCameraFragment;
                 break;
+            case R.id.nav_logout:
+                logout();
+                break;
         }
 
         if (fragment != null) {
@@ -113,5 +120,30 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
 
         return true;
+    }
+
+    private void logout() {
+        String title = "Выход";
+        String message = "Выйти из аккаунта?";
+        String buttonCancel = "Отмена";
+        String buttonYes = "Да";
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setNegativeButton(buttonCancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) { }
+        });
+        builder.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Toast.makeText(MainActivity.this, "Выход", Toast.LENGTH_SHORT).show();
+                MainActivity.this.onBackPressed();
+            }
+        });
+        builder.setCancelable(true);
+
+        builder.show();
     }
 }

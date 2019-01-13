@@ -13,8 +13,8 @@
     <string name="title_contacts_text_view">Список Контактов</string>
     <string name="device_model_text_view">Device Model:</string>
     <string name="android_version_text_view">Android Version:</string>
-    <string name="ram">RAM:</string>
-    <string name="ip_address">IP Address:</string>
+    <string name="ram_text_view">RAM:</string>
+    <string name="ip_address_text_view">IP Address:</string>
     <string name="button_repo">Войти через Github</string>
     <string name="mapKey">YOUR_MAPS_API_KEY</string>
     <string name="mapDirectionsKey">YOUR_DIRECTIONS_API_KEY</string>
@@ -25,6 +25,7 @@
     <string name="sensor_and_camera">Sensor And Camera</string>
     <string name="other">Other</string>
     <string name="logout">Logout</string>
+    <string name="ram">RAM</string>
     <string name="travel_mode_spinner_title">Выберете режим маршрута</string>
     <string name="mode_walking">Пешком</string>
     <string name="mode_driving">На машине</string>
