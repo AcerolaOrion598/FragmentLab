@@ -7,13 +7,14 @@
     tools:context=".Fragments.SensorAndCameraFragment">
 
     <ImageView
-        android:id="@+id/testImageView"
+        android:id="@+id/screenshotImageView"
         android:layout_width="236dp"
         android:layout_height="420dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:adjustViewBounds="true"
+        android:contentDescription="@string/screenshot"
         android:scaleType="fitCenter"
         android:src="@mipmap/ic_launcher_round"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
@@ -40,12 +41,20 @@
             android:text="@string/button_accelerometer_on" />
 
         <Button
-            android:id="@+id/takePictureButton"
+            android:id="@+id/takeScreenshotButton"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/button_take_picture" />
+            android:text="@string/button_take_screenshot" />
+
+        <Button
+            android:id="@+id/saveScreenshotButton"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/button_save_screenshot" />
 
     </LinearLayout>
 
@@ -57,7 +66,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:text="@string/accelerometer_text_view"
-        app:layout_constraintEnd_toStartOf="@+id/testImageView"
+        app:layout_constraintEnd_toStartOf="@+id/screenshotImageView"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

@@ -115,15 +115,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
         buttonMe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (hasPermissions()) {
-                    if (buttonMe.getText().toString().equals(getString(R.string.button_me_route))) {
-                        buildRouteFromMarker(markerMe);
-                    } else {
-                        getDeviceLocation();
-                    }
-                } else {
-                    requestPerms();
-                }
+                buildRouteFromMarker(markerMe);
             }
         });
 
@@ -169,12 +161,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         getDeviceLocation();
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        gMap = googleMap;
-        getDeviceLocation();
         if (ActivityCompat.checkSelfPermission(thisFragment, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(thisFragment,
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -182,6 +168,23 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
         }
         gMap.getUiSettings().setMyLocationButtonEnabled(false);
         gMap.setMyLocationEnabled(true);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        gMap = googleMap;
+        if (hasPermissions()) {
+            getDeviceLocation();
+            if (ActivityCompat.checkSelfPermission(thisFragment, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(thisFragment,
+                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            gMap.getUiSettings().setMyLocationButtonEnabled(false);
+            gMap.setMyLocationEnabled(true);
+        } else {
+            requestPerms();
+        }
     }
 
     public void getDeviceLocation() {
@@ -194,16 +197,16 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
             location.addOnCompleteListener(new OnCompleteListener() {
                 @Override
                 public void onComplete(@NonNull Task task) {
-                    markerHome = gMap.addMarker(new MarkerOptions().position(new LatLng(55.891765, 37.725044)).title("Дом"));
-                    markerInst = gMap.addMarker(new MarkerOptions().position(new LatLng(55.794317, 37.701400)).title("Универ"));
+                    markerHome = gMap.addMarker(new MarkerOptions().position(new LatLng(55.891765, 37.725044))
+                                                                                .title(getString(R.string.marker_home)));
+                    markerInst = gMap.addMarker(new MarkerOptions().position(new LatLng(55.794317, 37.701400))
+                                                                                .title(getString(R.string.marker_inst)));
                     if (task.isSuccessful()) {
                         Location currentLocation = (Location) task.getResult();
                         latLng = new LatLng(Objects.requireNonNull(currentLocation).getLatitude(), currentLocation.getLongitude());
                         moveCameraAndSetMarkerMe(latLng, defaultZoom);
                     } else {
-                        //buttonMe.setText(getString(R.string.button_me_location));
-                        Toast.makeText(thisFragment, "Невозможно получить текущее местоположение",
-                                                                                    Toast.LENGTH_LONG).show();
+                        Toast.makeText(thisFragment, getString(R.string.toast_location_failure), Toast.LENGTH_LONG).show();
                         latLng = new LatLng(0, 0);
                     }
                 }
@@ -214,9 +217,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
     }
 
     public void moveCameraAndSetMarkerMe(LatLng latLng, float zoom) {
-        buttonMe.setText(getString(R.string.button_me_route));
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
-        markerMe = gMap.addMarker(new MarkerOptions().position(latLng).title("Я тут"));
+        markerMe = gMap.addMarker(new MarkerOptions().position(latLng).title(getString(R.string.marker_me)));
     }
 
     private void buildRoute(Marker markerStart, Marker markerFinish, AbstractRouting.TravelMode mode) {
@@ -233,9 +235,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
     @Override
     public void onRoutingFailure(RouteException e) {
         if(e != null) {
-            Toast.makeText(thisFragment, "Ошибка: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(thisFragment, getString(R.string.toast_route_failure_known) + " " + e.getMessage(), Toast.LENGTH_LONG).show();
         }else {
-            Toast.makeText(thisFragment, "Что-то пошло не так, Попробуйте снова", Toast.LENGTH_SHORT).show();
+            Toast.makeText(thisFragment, getString(R.string.toast_route_failure_unknown), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -258,8 +260,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
             Polyline polyline = gMap.addPolyline(polyOptions);
             polylines.add(polyline);
 
-            Toast.makeText(thisFragment,"Route " + (i+1) + ": distance - "
-                     + route.get(i).getDistanceValue()+": duration - " + route.get(i).getDurationValue(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(thisFragment, getString(R.string.toast_connection_success), Toast.LENGTH_SHORT).show();
         }
     }
 

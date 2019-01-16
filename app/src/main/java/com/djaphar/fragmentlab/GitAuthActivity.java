@@ -88,7 +88,7 @@ public class GitAuthActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(@NonNull Call<AccessToken> call, @NonNull Throwable t) {
-                    Toast.makeText(context, getString(R.string.toast_connection_failed), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, getString(R.string.toast_connection_failure), Toast.LENGTH_SHORT).show();
                     button.setEnabled(true);
                 }
             });

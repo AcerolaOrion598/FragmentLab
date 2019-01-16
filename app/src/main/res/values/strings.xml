@@ -4,9 +4,13 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_desc">Avatar</string>
     <string name="action_text">Action</string>
-    <string name="toast_connection_failed">Ошибка соединения!</string>
+    <string name="toast_connection_failure">Ошибка соединения!</string>
     <string name="toast_connection_success">Аутентификация прошла успешно</string>
-    <string name="toast_picture_save">Фото сохранено</string>
+    <string name="toast_route_failure_known">Ошибка:</string>
+    <string name="toast_route_failure_unknown">Что-то пошло не так, Попробуйте снова</string>
+    <string name="toast_route_success">Маршрут построен</string>
+    <string name="toast_location_failure">Невозможно получить текущее местоположение</string>
+    <string name="toast_screenshot_save">Скриншот сохранён</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_repo_text_view">Список Репозиторий</string>
     <string name="title_contacts_text_view">Список Контактов</string>
@@ -14,9 +18,8 @@
     <string name="android_version_text_view">Android Version:</string>
     <string name="ram_text_view">RAM:</string>
     <string name="ip_address_text_view">IP Address:</string>
-    <string name="button_repo">Войти через Github</string>
-    <string name="mapKey">AIzaSyAE2JdbXJXk3foFvWP8wX5fYt8PRk1KFmM</string>
-    <string name="mapDirectionsKey">AIzaSyBFzOFU9jGL7zY6YRAbAA1lxMISmLAZWVY</string>
+    <string name="mapKey">YOUR_MAPS_API_KEY</string>
+    <string name="mapDirectionsKey">YOUR_DIRECTIONS_API_KEY</string>
     <string name="github">GitHub</string>
     <string name="maps">Карты</string>
     <string name="contacts">Контакты</string>
@@ -26,17 +29,21 @@
     <string name="logout">Выход</string>
     <string name="ram">RAM</string>
     <string name="ram2">RAM2</string>
+    <string name="screenshot">Скриншот</string>
     <string name="travel_mode_spinner_title">Выберете режим маршрута</string>
     <string name="mode_walking">Пешком</string>
     <string name="mode_driving">На машине</string>
     <string name="mode_transit">Общественный транспорт</string>
     <string name="mode_biking">Велосипед</string>
     <string name="mode_null">Выберете режим маршрута!</string>
-    <string name="button_me_location">Моя геолокация</string>
+    <string name="button_repo">Войти через Github</string>
     <string name="button_inst">От Института</string>
     <string name="button_me_route">От Меня</string>
-    <string name="button_take_picture">Сделать снимок</string>
-    <string name="button_save_picture">Сохранить снимок</string>
+    <string name="marker_me">Я тут</string>
+    <string name="marker_inst">Универ</string>
+    <string name="marker_home">Дом</string>
+    <string name="button_take_screenshot">Сделать скриншот</string>
+    <string name="button_save_screenshot">Сохранить скриншот</string>
     <string name="button_accelerometer_on">Включить датчик</string>
     <string name="button_accelerometer_off">Выключить датчик</string>
     <string name="accelerometer_text_view">Акселерометер:</string>
@@ -44,5 +51,4 @@
     <string name="logout_dialog_message">Выйти?</string>
     <string name="logout_dialog_button_cancel">Отмена</string>
     <string name="logout_dialog_button_yes">Да</string>
-
 </resources>

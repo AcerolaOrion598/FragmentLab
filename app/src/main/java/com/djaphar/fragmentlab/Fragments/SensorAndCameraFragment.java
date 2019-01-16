@@ -2,17 +2,15 @@ package com.djaphar.fragmentlab.Fragments;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -28,7 +26,7 @@ import com.djaphar.fragmentlab.MainActivity;
 import com.djaphar.fragmentlab.R;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
+import java.io.FileOutputStream;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Timer;
@@ -37,17 +35,16 @@ import java.util.TimerTask;
 
 public class SensorAndCameraFragment extends Fragment {
 
-    static final int REQUEST_IMAGE_CAPTURE_AND_SAVE = 1;
     private static final int PERMISSION_REQUEST_CODE = 123;
     MainActivity mainActivity;
-    ImageView testImageView;
+    ImageView screenshotImageView;
     TextView sensorTV;
-    Button takePictureButton, accelerometerButton;
-    Uri outputFileUri;
+    Button accelerometerButton, takeScreenshotButton, saveScreenshotButton;
     SensorManager sensorManager;
     Sensor sensorAccelerometer;
     Timer timer;
     TimerTask task;
+    Bitmap screenshotBitmap;
 
     StringBuilder stringBuilder = new StringBuilder();
     float[] valuesAccelerometer = new float[3];
@@ -59,26 +56,16 @@ public class SensorAndCameraFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_sensor_and_camera, container, false);
         mainActivity = (MainActivity) getActivity();
-        testImageView = rootView.findViewById(R.id.testImageView);
+        screenshotImageView = rootView.findViewById(R.id.screenshotImageView);
         sensorTV = rootView.findViewById(R.id.sensorTV);
-        takePictureButton = rootView.findViewById(R.id.takePictureButton);
         accelerometerButton = rootView.findViewById(R.id.accelerometerButton);
+        takeScreenshotButton = rootView.findViewById(R.id.takeScreenshotButton);
+        saveScreenshotButton = rootView.findViewById(R.id.saveScreenshotButton);
         return rootView;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-
-        takePictureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (hasPermissions()) {
-                    takeAndSavePictureIntent();
-                } else {
-                    requestPerms();
-                }
-            }
-        });
 
         sensorManager = (SensorManager) mainActivity.getSystemService(Context.SENSOR_SERVICE);
         sensorAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -97,6 +84,24 @@ public class SensorAndCameraFragment extends Fragment {
                     sensorTV.setText(getString(R.string.accelerometer_text_view));
                     sensorManager.unregisterListener(listener);
                     timer.cancel();
+                }
+            }
+        });
+
+        takeScreenshotButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                takeScreenshot();
+            }
+        });
+
+        saveScreenshotButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (hasPermissions()) {
+                    saveScreenshot();
+                } else {
+                    requestPerms();
                 }
             }
         });
@@ -122,21 +127,38 @@ public class SensorAndCameraFragment extends Fragment {
         }
     }
 
-    private void takeAndSavePictureIntent() {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDirectory =  new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                                                                                                imageFileName + ".jpg");
-        outputFileUri = Uri.fromFile(storageDirectory);
+    public void takeScreenshot() {
+        View view = mainActivity.getWindow().getDecorView().getRootView();
+        view.setDrawingCacheEnabled(true);
+        screenshotBitmap = Bitmap.createBitmap(view.getDrawingCache());
+        view.setDrawingCacheEnabled(false);
+        screenshotImageView.setImageBitmap(screenshotBitmap);
+    }
 
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
-        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE_AND_SAVE);
+    public void saveScreenshot() {
+        Date now = new Date();
+        android.text.format.DateFormat.format("yyyy_MM-dd_hh:mm:ss", now);
+
+        try {
+            String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString()
+                    + "/" + now + ".jpg";
+            File screenshotFile = new File(path);
+
+            FileOutputStream outputStream = new FileOutputStream(screenshotFile);
+            int quality = 100;
+            screenshotBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+            outputStream.flush();
+            outputStream.close();
+            Toast.makeText(this.getContext(), getString(R.string.toast_screenshot_save), Toast.LENGTH_SHORT).show();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
     }
 
     private boolean hasPermissions() {
         int res;
-        String[] permissions = new String[] {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        String[] permissions = new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
         for (String perms : permissions) {
             res = Objects.requireNonNull(this.getContext()).checkCallingOrSelfPermission(perms);
@@ -149,7 +171,7 @@ public class SensorAndCameraFragment extends Fragment {
     }
 
     private void requestPerms() {
-        String[] permissions = new String[] {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        String[] permissions = new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE};
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(permissions, PERMISSION_REQUEST_CODE);
         }
@@ -157,13 +179,7 @@ public class SensorAndCameraFragment extends Fragment {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        takeAndSavePictureIntent();
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        testImageView.setImageURI(outputFileUri);
-        Toast.makeText(this.getContext(), getString(R.string.toast_picture_save), Toast.LENGTH_SHORT).show();
+//        takeAndSavePictureIntent();
     }
 
     private void showInfo() {
@@ -171,7 +187,7 @@ public class SensorAndCameraFragment extends Fragment {
 
 //        stringBuilder.append("Accelerometer: ").append(format(valuesAccelerometer))
 //                .append("\nAccelerometer motion: ").append(format(valuesAccelerometerMotion))
-//                .append("\nAccelerometer gravity: ").append(format(valuesAccelGravity));
+//                .append("\nAccelerometer gravity: ").append(format(valuesAccelerometerGravity));
 
         stringBuilder.append("Accelerometer: ").append(format(valuesAccelerometer));
         sensorTV.setText(stringBuilder);
