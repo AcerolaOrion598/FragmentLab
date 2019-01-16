@@ -1,4 +1,4 @@
-package com.djaphar.fragmentlab;
+package com.djaphar.fragmentlab.SupportClasses;
 
 import com.google.gson.annotations.SerializedName;
 

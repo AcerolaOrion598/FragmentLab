@@ -2,33 +2,30 @@ package com.djaphar.fragmentlab.Fragments;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
 
 import com.djaphar.fragmentlab.MainActivity;
 import com.djaphar.fragmentlab.R;
+import com.djaphar.fragmentlab.SupportClasses.ContactsRecyclerViewAdapter;
+import com.tomash.androidcontacts.contactgetter.entity.ContactData;
+import com.tomash.androidcontacts.contactgetter.main.contactsGetter.ContactsGetterBuilder;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 public class ContactsFragment extends Fragment {
 
     MainActivity mainActivity;
-    ListView listViewContacts;
-    HashMap<String, String> nameNumberHashMap = new HashMap<>();
+    RecyclerView recyclerView;
     private static final int PERMISSION_REQUEST_CODE = 123;
 
     @Override
@@ -36,8 +33,7 @@ public class ContactsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_contacts, container, false);
         mainActivity = (MainActivity) getActivity();
-        listViewContacts = rootView.findViewById(R.id.list_view_contacts);
-
+        recyclerView = rootView.findViewById(R.id.contacts_recycler_view);
         return rootView;
     }
 
@@ -77,30 +73,9 @@ public class ContactsFragment extends Fragment {
     }
 
     private void getContacts() {
-        Cursor cursor = mainActivity.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                new String[] {ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                        ContactsContract.CommonDataKinds.Phone.NUMBER}, null , null, null);
-
-        mainActivity.startManagingCursor(cursor); // TODO Желательно переделать через CursorLoader
-
-        if (Objects.requireNonNull(cursor).getCount() > 0) {
-            while (cursor.moveToNext()) {
-                nameNumberHashMap.put(cursor.getString(0), cursor.getString(1));
-            }
-
-            List<HashMap<String, String>> hashMapList = new ArrayList<>();
-            SimpleAdapter adapter = new SimpleAdapter(this.getContext(), hashMapList, R.layout.contacts_list_view_pattern,
-                    new String[]{"Name Line", "Number Line"}, new int[]{R.id.name, R.id.number});
-
-            for (Object o : nameNumberHashMap.entrySet()) {
-                HashMap<String, String> resultHashMap = new HashMap<>();
-                Map.Entry pair = (Map.Entry) o;
-                resultHashMap.put("Name Line", pair.getKey().toString());
-                resultHashMap.put("Number Line", pair.getValue().toString());
-                hashMapList.add(resultHashMap);
-            }
-
-            listViewContacts.setAdapter(adapter);
-        }
+        List<ContactData> namesNumbersList = new ContactsGetterBuilder(this.getContext()).onlyWithPhones().buildList();
+        ContactsRecyclerViewAdapter adapter = new ContactsRecyclerViewAdapter(namesNumbersList);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
     }
 }

@@ -4,31 +4,26 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import com.djaphar.fragmentlab.R;
+import com.djaphar.fragmentlab.SupportClasses.RepoRecyclerViewAdapter;
 
 import java.util.Objects;
 
 public class GitRepoFragment extends Fragment {
 
-    TextView titleTV;
-    ListView listView;
-    String title;
-    String[] parsedJson;
+    RecyclerView recyclerView;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_git_repo, container, false);
-
-        listView = rootView.findViewById(R.id.list_view_repo);
-        titleTV = rootView.findViewById(R.id.titleRepoTV);
+        recyclerView = rootView.findViewById(R.id.repo_recycler_view);
         return rootView;
     }
 
@@ -36,11 +31,10 @@ public class GitRepoFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        parsedJson = Objects.requireNonNull(getArguments()).getStringArray("Repos");
-        title = Objects.requireNonNull(getArguments()).getString("Own");
-        titleTV.append(getString(R.string.title_repo_text_view) + " " + title);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(Objects.requireNonNull(this.getContext()),
-                android.R.layout.simple_list_item_1, parsedJson);
-        listView.setAdapter(adapter);
+        String[] parsedJson = Objects.requireNonNull(getArguments()).getStringArray("Repos");
+        String avatarURL = getArguments().getString("Url");
+        RepoRecyclerViewAdapter adapter = new RepoRecyclerViewAdapter(parsedJson, avatarURL, this.getContext());
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
     }
 }

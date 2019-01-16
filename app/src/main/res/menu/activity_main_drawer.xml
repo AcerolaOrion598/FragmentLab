@@ -21,7 +21,7 @@
             android:icon="@android:drawable/ic_menu_info_details"
             android:title="@string/info" />
         <item
-            android:id="@+id/nav_sencor_and_camera"
+            android:id="@+id/nav_sensor_and_screenshot"
             android:icon="@drawable/ic_menu_camera"
             android:title="@string/sensor_and_camera" />
     </group>

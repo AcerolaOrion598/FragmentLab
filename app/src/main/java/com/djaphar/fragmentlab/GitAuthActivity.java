@@ -11,7 +11,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.djaphar.fragmentlab.Interface.GitHubClient;
+import com.djaphar.fragmentlab.SupportClasses.AccessToken;
+import com.djaphar.fragmentlab.SupportClasses.GitHubClient;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -35,8 +36,8 @@ public class GitAuthActivity extends AppCompatActivity {
 
     Context context = this;
     Button button;
-    private String clientId = "dfcb2acb3b77f6368cbc";
-    private String clientSecret = "8c2d12e15d0744e3fe8353e30a8951ca0a4b9264";
+    private String clientId = "YOUR_CLIENT_ID";
+    private String clientSecret = "YOUR_CLIENT_SECRET";
     private String redirectUri = "myapp://callback";
     private String accessToken;
     String owner = "", avatarURL = "", email = "";

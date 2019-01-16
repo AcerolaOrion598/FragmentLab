@@ -12,7 +12,6 @@
     <string name="toast_location_failure">Невозможно получить текущее местоположение</string>
     <string name="toast_screenshot_save">Скриншот сохранён</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="title_repo_text_view">Список Репозиторий</string>
     <string name="title_contacts_text_view">Список Контактов</string>
     <string name="device_model_text_view">Device Model:</string>
     <string name="android_version_text_view">Android Version:</string>
@@ -24,7 +23,7 @@
     <string name="maps">Карты</string>
     <string name="contacts">Контакты</string>
     <string name="info">Информация</string>
-    <string name="sensor_and_camera">Сенсор и Камера</string>
+    <string name="sensor_and_camera">Сенсор и Скриншот</string>
     <string name="other">Другое</string>
     <string name="logout">Выход</string>
     <string name="ram">RAM</string>

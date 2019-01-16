@@ -33,7 +33,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class SensorAndCameraFragment extends Fragment {
+public class SensorAndScreenshotFragment extends Fragment {
 
     private static final int PERMISSION_REQUEST_CODE = 123;
     MainActivity mainActivity;
@@ -54,7 +54,7 @@ public class SensorAndCameraFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_sensor_and_camera, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_sensor_and_screenshot, container, false);
         mainActivity = (MainActivity) getActivity();
         screenshotImageView = rootView.findViewById(R.id.screenshotImageView);
         sensorTV = rootView.findViewById(R.id.sensorTV);
@@ -81,7 +81,7 @@ public class SensorAndCameraFragment extends Fragment {
                     timer.schedule(task, 0, 250);
                 } else {
                     accelerometerButton.setText(getString(R.string.button_accelerometer_on));
-                    sensorTV.setText(getString(R.string.accelerometer_text_view));
+                    sensorTV.setText(R.string.accelerometer_text_view);
                     sensorManager.unregisterListener(listener);
                     timer.cancel();
                 }
@@ -189,7 +189,7 @@ public class SensorAndCameraFragment extends Fragment {
 //                .append("\nAccelerometer motion: ").append(format(valuesAccelerometerMotion))
 //                .append("\nAccelerometer gravity: ").append(format(valuesAccelerometerGravity));
 
-        stringBuilder.append("Accelerometer: ").append(format(valuesAccelerometer));
+        stringBuilder.append(R.string.accelerometer_text_view).append(format(valuesAccelerometer));
         sensorTV.setText(stringBuilder);
     }
 

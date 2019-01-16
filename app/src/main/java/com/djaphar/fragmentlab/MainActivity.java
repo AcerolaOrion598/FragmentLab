@@ -1,9 +1,6 @@
 package com.djaphar.fragmentlab;
 
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -14,35 +11,24 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.djaphar.fragmentlab.Fragments.ContactsFragment;
 import com.djaphar.fragmentlab.Fragments.GitRepoFragment;
 import com.djaphar.fragmentlab.Fragments.InfoFragment;
 import com.djaphar.fragmentlab.Fragments.MapsFragment;
-import com.djaphar.fragmentlab.Fragments.SensorAndCameraFragment;
-import com.google.gson.JsonArray;
+import com.djaphar.fragmentlab.Fragments.SensorAndScreenshotFragment;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.Objects;
-
-import javax.net.ssl.HttpsURLConnection;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    Fragment gitRepoFragment, mapsFragment, contactsFragment, infoFragment, sensorAndCameraFragment, currentFragment;
+    Fragment gitRepoFragment, mapsFragment, contactsFragment, infoFragment, sensorAndScreenshotFragment, currentFragment;
     int currentCheckedItem;
     NavigationView navigationView;
 
@@ -69,22 +55,24 @@ public class MainActivity extends AppCompatActivity
         View headerView = navigationView.getHeaderView(0);
         ownerTextView = headerView.findViewById(R.id.ownerTextView);
         emailTextView = headerView.findViewById(R.id.emailTextView);
-        String owner = Objects.requireNonNull(Objects.requireNonNull(getIntent().getExtras()).getString("Owner"));
-        ownerTextView.setText(owner);
+
+        ownerTextView.setText(Objects.requireNonNull(Objects.requireNonNull(getIntent().getExtras()).getString("Owner")));
         emailTextView.setText(getIntent().getExtras().getString("Email"));
-        new DownloadAvatarTask((ImageView) headerView.findViewById(R.id.avatarImageView))
-                .execute(getIntent().getExtras().getString("Avatar URL"));
+
+        String avatarURL = getIntent().getExtras().getString("Avatar URL");
+        ImageView avatarImageView = headerView.findViewById(R.id.avatarImageView);
+        Glide.with(this).asBitmap().load(avatarURL).into(avatarImageView);
 
         gitRepoFragment = new GitRepoFragment();
         Bundle fragmentArgs = new Bundle();
         fragmentArgs.putStringArray("Repos", Objects.requireNonNull(getIntent().getExtras()).getStringArray("Repositories"));
-        fragmentArgs.putString("Own", owner);
+        fragmentArgs.putString("Url", avatarURL);
         gitRepoFragment.setArguments(fragmentArgs);
 
         mapsFragment = new MapsFragment();
         contactsFragment = new ContactsFragment();
         infoFragment = new InfoFragment();
-        sensorAndCameraFragment = new SensorAndCameraFragment();
+        sensorAndScreenshotFragment = new SensorAndScreenshotFragment();
 
         navigationView.setCheckedItem(R.id.nav_github_auth);
         getSupportFragmentManager().beginTransaction().add(R.id.main_fragment, gitRepoFragment).commit();
@@ -129,8 +117,8 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_info:
                 fragment = infoFragment;
                 break;
-            case R.id.nav_sencor_and_camera:
-                fragment = sensorAndCameraFragment;
+            case R.id.nav_sensor_and_screenshot:
+                fragment = sensorAndScreenshotFragment;
                 break;
             case R.id.nav_logout:
                 logout();
@@ -166,33 +154,5 @@ public class MainActivity extends AppCompatActivity
         builder.setCancelable(true);
 
         builder.show();
-    }
-
-    private class DownloadAvatarTask extends AsyncTask<String, Void, Bitmap> {
-
-        ImageView avatarImageView;
-
-        DownloadAvatarTask(ImageView imageView) {
-            avatarImageView = imageView;
-        }
-
-        protected Bitmap doInBackground(String... urls) {
-            String urlDisplay = urls[0];
-            Bitmap avatar = null;
-
-            try {
-                InputStream in = new java.net.URL(urlDisplay).openStream();
-                avatar = BitmapFactory.decodeStream(in);
-            } catch (Exception e) {
-                Log.e("Error", e.getMessage());
-                e.printStackTrace();
-            }
-
-            return avatar;
-        }
-
-        protected void onPostExecute(Bitmap resultBitmap) {
-            avatarImageView.setImageBitmap(resultBitmap);
-        }
     }
 }

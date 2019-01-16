@@ -1,6 +1,4 @@
-package com.djaphar.fragmentlab.Interface;
-
-import com.djaphar.fragmentlab.AccessToken;
+package com.djaphar.fragmentlab.SupportClasses;
 
 import retrofit2.Call;
 import retrofit2.http.Field;
