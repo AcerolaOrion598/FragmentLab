@@ -1,6 +1,9 @@
 package com.djaphar.fragmentlab;
 
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -11,7 +14,11 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.djaphar.fragmentlab.Fragments.ContactsFragment;
@@ -19,8 +26,18 @@ import com.djaphar.fragmentlab.Fragments.GitRepoFragment;
 import com.djaphar.fragmentlab.Fragments.InfoFragment;
 import com.djaphar.fragmentlab.Fragments.MapsFragment;
 import com.djaphar.fragmentlab.Fragments.SensorAndCameraFragment;
+import com.google.gson.JsonArray;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Objects;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -31,6 +48,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        TextView ownerTextView, emailTextView;
 
         super.onCreate(savedInstanceState);
 
@@ -47,10 +66,19 @@ public class MainActivity extends AppCompatActivity
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        View headerView = navigationView.getHeaderView(0);
+        ownerTextView = headerView.findViewById(R.id.ownerTextView);
+        emailTextView = headerView.findViewById(R.id.emailTextView);
+        String owner = Objects.requireNonNull(Objects.requireNonNull(getIntent().getExtras()).getString("Owner"));
+        ownerTextView.setText(owner);
+        emailTextView.setText(getIntent().getExtras().getString("Email"));
+        new DownloadAvatarTask((ImageView) headerView.findViewById(R.id.avatarImageView))
+                .execute(getIntent().getExtras().getString("Avatar URL"));
+
         gitRepoFragment = new GitRepoFragment();
         Bundle fragmentArgs = new Bundle();
         fragmentArgs.putStringArray("Repos", Objects.requireNonNull(getIntent().getExtras()).getStringArray("Repositories"));
-        fragmentArgs.putString("Own", Objects.requireNonNull(getIntent().getExtras().get("Owner")).toString());
+        fragmentArgs.putString("Own", owner);
         gitRepoFragment.setArguments(fragmentArgs);
 
         mapsFragment = new MapsFragment();
@@ -78,7 +106,6 @@ public class MainActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
-            //logout();
         }
     }
 
@@ -123,27 +150,49 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void logout() {
-        String title = "Выход";
-        String message = "Выйти из аккаунта?";
-        String buttonCancel = "Отмена";
-        String buttonYes = "Да";
-
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(title);
-        builder.setMessage(message);
-        builder.setNegativeButton(buttonCancel, new DialogInterface.OnClickListener() {
+        builder.setTitle(getString(R.string.logout_dialog_title));
+        builder.setMessage(getString(R.string.logout_dialog_message));
+        builder.setNegativeButton(getString(R.string.logout_dialog_button_cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) { }
         });
-        builder.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getString(R.string.logout_dialog_button_yes), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Toast.makeText(MainActivity.this, "Выход", Toast.LENGTH_SHORT).show();
                 MainActivity.this.onBackPressed();
             }
         });
         builder.setCancelable(true);
 
         builder.show();
+    }
+
+    private class DownloadAvatarTask extends AsyncTask<String, Void, Bitmap> {
+
+        ImageView avatarImageView;
+
+        DownloadAvatarTask(ImageView imageView) {
+            avatarImageView = imageView;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urlDisplay = urls[0];
+            Bitmap avatar = null;
+
+            try {
+                InputStream in = new java.net.URL(urlDisplay).openStream();
+                avatar = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+
+            return avatar;
+        }
+
+        protected void onPostExecute(Bitmap resultBitmap) {
+            avatarImageView.setImageBitmap(resultBitmap);
+        }
     }
 }

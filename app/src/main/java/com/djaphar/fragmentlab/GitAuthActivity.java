@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Arrays;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -38,6 +39,7 @@ public class GitAuthActivity extends AppCompatActivity {
     private String clientSecret = "8c2d12e15d0744e3fe8353e30a8951ca0a4b9264";
     private String redirectUri = "myapp://callback";
     private String accessToken;
+    String owner = "", avatarURL = "", email = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,13 +81,14 @@ public class GitAuthActivity extends AppCompatActivity {
                 public void onResponse(@NonNull Call<AccessToken> call, @NonNull Response<AccessToken> response) {
                     if (response.body() != null) {
                         accessToken = response.body().getToken();
+                        new GitConnectionTask().execute("https://api.github.com/user?access_token=" + accessToken);
                         new GitConnectionTask().execute("https://api.github.com/user/repos?access_token=" + accessToken);
                     }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<AccessToken> call, @NonNull Throwable t) {
-                    Toast.makeText(context, getString(R.string.toast_connection), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, getString(R.string.toast_connection_failed), Toast.LENGTH_SHORT).show();
                     button.setEnabled(true);
                 }
             });
@@ -93,8 +96,6 @@ public class GitAuthActivity extends AppCompatActivity {
     }
 
     class GitConnectionTask extends AsyncTask<String, Void, String[]> {
-
-        String owner = "";
 
         @Override
         protected String[] doInBackground(String... newUrl) {
@@ -123,15 +124,18 @@ public class GitAuthActivity extends AppCompatActivity {
 
             if (!resultJson.equals("")) {
                 try {
-                    jsonArray = new JSONArray(resultJson);
-                    repositories = new String[jsonArray.length()];
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject objectRepositories = jsonArray.getJSONObject(i);
-                        if (owner.equals("")) {
-                            JSONObject objectOwner = objectRepositories.getJSONObject("owner");
-                            owner = objectOwner.getString("login");
+                    if (Arrays.toString(newUrl).contains("repos")) {
+                        jsonArray = new JSONArray(resultJson);
+                        repositories = new String[jsonArray.length()];
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject objectRepositories = jsonArray.getJSONObject(i);
+                            repositories[i] = objectRepositories.getString("name");
                         }
-                        repositories[i] = objectRepositories.getString("name");
+                    } else {
+                        JSONObject objectUser = new JSONObject(resultJson);
+                        avatarURL = objectUser.getString("avatar_url");
+                        owner = objectUser.getString("login");
+                        email = objectUser.getString("email");
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -143,18 +147,19 @@ public class GitAuthActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String[] result) {
+            Toast.makeText(context, getString(R.string.toast_connection_success), Toast.LENGTH_SHORT).show();
             if (!(result == null)) {
                 Intent intentMainActivity = new Intent(context, MainActivity.class);
                 intentMainActivity.putExtra("Repositories", result);
                 intentMainActivity.putExtra("Owner", owner);
+                intentMainActivity.putExtra("Avatar URL", avatarURL);
+                intentMainActivity.putExtra("Email", email);
                 startActivity(intentMainActivity);
-            } else {
-                Toast.makeText(context, R.string.toast_connection, Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-    public String streamConverse(InputStream in) {
+    public static String streamConverse(InputStream in) {
         BufferedReader reader = null;
         StringBuilder response = new StringBuilder();
 

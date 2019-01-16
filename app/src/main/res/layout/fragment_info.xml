@@ -37,7 +37,7 @@
 
         <ImageView
             android:id="@+id/ramImageView"
-            android:layout_width="147dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:contentDescription="@string/ram"
@@ -49,6 +49,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textSize="24sp" />
+
+        <ImageView
+            android:id="@+id/ram2ImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:contentDescription="@string/ram2"
+            android:src="@drawable/ram2" />
 
     </LinearLayout>
 
