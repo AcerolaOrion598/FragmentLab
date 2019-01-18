@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.djaphar.fragmentlab.MainActivity;
 import com.djaphar.fragmentlab.R;
 
@@ -71,6 +72,9 @@ public class SensorAndScreenshotFragment extends Fragment {
         viewCreated = true;
         sensorManager = (SensorManager) mainActivity.getSystemService(Context.SENSOR_SERVICE);
         sensorAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        Glide.with(Objects.requireNonNull(this.getContext()))
+                .asBitmap().load("https://simg3.gelbooru.com//images/bd/28/bd28e05bf9a0c551c27b4cef615402d9.jpg")
+                .into(screenshotImageView);
 
         accelerometerButton.setOnClickListener(new View.OnClickListener() {
             @Override
