@@ -136,6 +136,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
     public void onDetach() {
         super.onDetach();
         locationManager.removeUpdates(locationListener);
+        if (markerMe != null) {
+            markerMe.remove();
+            markerMe = null;
+        }
     }
 
     @Override
