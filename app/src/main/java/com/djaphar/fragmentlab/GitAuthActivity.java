@@ -41,6 +41,7 @@ public class GitAuthActivity extends AppCompatActivity {
     private String redirectUri = "myapp://callback";
     private String accessToken;
     String owner = "", avatarURL = "", email = "";
+    boolean notAuthorized = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +53,7 @@ public class GitAuthActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                notAuthorized = true;
                 button.setEnabled(false);
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/login/oauth/authorize"
                         + "?client_id=" + clientId + "&scope=repo&redirect_uri=" + redirectUri));
@@ -66,7 +68,7 @@ public class GitAuthActivity extends AppCompatActivity {
 
         Uri uri = getIntent().getData();
 
-        if (uri != null && uri.toString().startsWith(redirectUri)) {
+        if (notAuthorized && uri != null && uri.toString().startsWith(redirectUri)) {
             String code = uri.getQueryParameter("code");
 
             Retrofit.Builder builder = new Retrofit.Builder()
@@ -150,6 +152,7 @@ public class GitAuthActivity extends AppCompatActivity {
         protected void onPostExecute(String[] result) {
             Toast.makeText(context, getString(R.string.toast_connection_success), Toast.LENGTH_SHORT).show();
             if (!(result == null)) {
+                notAuthorized = false;
                 Intent intentMainActivity = new Intent(context, MainActivity.class);
                 intentMainActivity.putExtra("Repositories", result);
                 intentMainActivity.putExtra("Owner", owner);

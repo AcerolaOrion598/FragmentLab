@@ -10,6 +10,7 @@
     <string name="toast_route_failure_unknown">Что-то пошло не так, Попробуйте снова</string>
     <string name="toast_route_success">Маршрут построен</string>
     <string name="toast_location_failure">Невозможно получить текущее местоположение</string>
+    <string name="toast_screenshot_empty">Нечего сохранять то!</string>
     <string name="toast_screenshot_save">Скриншот сохранён</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_contacts_text_view">Список Контактов</string>
@@ -30,9 +31,9 @@
     <string name="ram2">RAM2</string>
     <string name="screenshot">Скриншот</string>
     <string name="travel_mode_spinner_title">Выберете режим маршрута</string>
-    <string name="mode_walking">Пешком</string>
-    <string name="mode_driving">На машине</string>
+    <string name="mode_driving">Автомобиль</string>
     <string name="mode_transit">Общественный транспорт</string>
+    <string name="mode_walking">Пешком</string>
     <string name="mode_biking">Велосипед</string>
     <string name="mode_null">Выберете режим маршрута!</string>
     <string name="button_repo">Войти через Github</string>

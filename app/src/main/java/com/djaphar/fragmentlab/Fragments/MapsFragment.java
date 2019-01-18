@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -26,8 +27,8 @@ import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
 import com.djaphar.fragmentlab.MainActivity;
 import com.djaphar.fragmentlab.R;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
+import com.djaphar.fragmentlab.SupportClasses.TravelModeSpinnerAdapter;
+import com.djaphar.fragmentlab.SupportClasses.TravelModeSpinnerItem;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -37,8 +38,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,11 +52,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
     Marker markerHome, markerInst, markerMe;
     GoogleMap gMap;
     Context thisFragment;
-    Task location;
-    final float defaultZoom = 15f;
-    LatLng latLng;
+    LocationManager locationManager;
     private List<Polyline> polylines;
     private static final int PERMISSION_REQUEST_CODE = 123;
+    boolean justOpened = true;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -74,33 +72,32 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
         SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         Objects.requireNonNull(supportMapFragment).getMapAsync(this);
         polylines = new ArrayList<>();
 
-        String[] data = {getString(R.string.mode_walking), getString(R.string.mode_driving),
-                                    getString(R.string.mode_transit), getString(R.string.mode_biking)};
-        // TODO Адекватный внешний вид спиннера
-        //SimpleAdapter adapter = new SimpleAdapter(thisFragment, data, R.layout.travel_mode_spinner_pattern, new int[] {R.id.spinnerTravelModeTV});
-        final ArrayAdapter<String> adapter = new ArrayAdapter<>(thisFragment, android.R.layout.simple_spinner_item, data);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-
+        ArrayList<TravelModeSpinnerItem> travelModeList = new ArrayList<>();
+        travelModeList.add(new TravelModeSpinnerItem(getString(R.string.mode_driving)));
+        travelModeList.add(new TravelModeSpinnerItem(getString(R.string.mode_transit)));
+        travelModeList.add(new TravelModeSpinnerItem(getString(R.string.mode_walking)));
+        travelModeList.add(new TravelModeSpinnerItem(getString(R.string.mode_biking)));
+        TravelModeSpinnerAdapter adapter = new TravelModeSpinnerAdapter(thisFragment, travelModeList);
         spinnerTravelMode.setAdapter(adapter);
-        spinnerTravelMode.setPrompt(getString(R.string.travel_mode_spinner_title));
 
         spinnerTravelMode.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
             @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                switch (i) {
+            public void onItemSelected(AdapterView<?> adapterView, View view, int selectedPosition, long l) {
+                switch (selectedPosition) {
                     case 0:
-                        mode = AbstractRouting.TravelMode.WALKING;
-                        break;
-                    case 1:
                         mode = AbstractRouting.TravelMode.DRIVING;
                         break;
-                    case 2:
+                    case 1:
                         mode = AbstractRouting.TravelMode.TRANSIT;
+                        break;
+                    case 2:
+                        mode = AbstractRouting.TravelMode.WALKING;
                         break;
                     case 3:
                         mode = AbstractRouting.TravelMode.BIKING;
@@ -125,6 +122,26 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
                 buildRouteFromMarker(markerInst);
             }
         });
+
+        justOpened = true;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        locationManager.removeUpdates(locationListener);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        locationManager.removeUpdates(locationListener);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getDeviceLocation();
     }
 
     private void buildRouteFromMarker(Marker markerStart) {
@@ -173,6 +190,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
     @Override
     public void onMapReady(GoogleMap googleMap) {
         gMap = googleMap;
+        LatLng moscowLatLng = new LatLng(55.754070, 37.619924);
+        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(moscowLatLng, 9.8f));
+        markerHome = gMap.addMarker(new MarkerOptions().position(new LatLng(55.891765, 37.725044))
+                .title(getString(R.string.marker_home)));
+        markerInst = gMap.addMarker(new MarkerOptions().position(new LatLng(55.794317, 37.701400))
+                .title(getString(R.string.marker_inst)));
         if (hasPermissions()) {
             getDeviceLocation();
             if (ActivityCompat.checkSelfPermission(thisFragment, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -188,36 +211,21 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
     }
 
     public void getDeviceLocation() {
-        FusedLocationProviderClient fusedLocationProviderClient =
-                        LocationServices.getFusedLocationProviderClient(thisFragment);
+        locationManager = (LocationManager) mainActivity.getSystemService(Context.LOCATION_SERVICE);
+
         try {
-            // TODO: Изменить lastLocation на запрос реального местоположения
-            location = fusedLocationProviderClient.getLastLocation();
-            //location = fusedLocationProviderClient.requestLocationUpdates();
-            location.addOnCompleteListener(new OnCompleteListener() {
-                @Override
-                public void onComplete(@NonNull Task task) {
-                    markerHome = gMap.addMarker(new MarkerOptions().position(new LatLng(55.891765, 37.725044))
-                                                                                .title(getString(R.string.marker_home)));
-                    markerInst = gMap.addMarker(new MarkerOptions().position(new LatLng(55.794317, 37.701400))
-                                                                                .title(getString(R.string.marker_inst)));
-                    if (task.isSuccessful()) {
-                        Location currentLocation = (Location) task.getResult();
-                        latLng = new LatLng(Objects.requireNonNull(currentLocation).getLatitude(), currentLocation.getLongitude());
-                        moveCameraAndSetMarkerMe(latLng, defaultZoom);
-                    } else {
-                        Toast.makeText(thisFragment, getString(R.string.toast_location_failure), Toast.LENGTH_LONG).show();
-                        latLng = new LatLng(0, 0);
-                    }
-                }
-            });
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, locationListener);
         } catch (SecurityException e) {
             e.printStackTrace();
         }
     }
 
     public void moveCameraAndSetMarkerMe(LatLng latLng, float zoom) {
-        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+        if (justOpened) {
+            gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+            justOpened = false;
+        }
         markerMe = gMap.addMarker(new MarkerOptions().position(latLng).title(getString(R.string.marker_me)));
     }
 
@@ -254,7 +262,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
         for (int i = 0; i <route.size(); i++) {
 
             PolylineOptions polyOptions = new PolylineOptions();
-            polyOptions.color(R.color.primary_dark_material_light);
+            polyOptions.color(R.color.colorPrimaryDark);
             polyOptions.width(10 + i * 3);
             polyOptions.addAll(route.get(i).getPoints());
             Polyline polyline = gMap.addPolyline(polyOptions);
@@ -270,10 +278,25 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Routin
     @Override
     public void onRoutingCancelled() { }
 
-//    public void erasePolylines(){
-//        for (Polyline line : polylines) {
-//            line.remove();
-//        }
-//        polylines.clear();
-//    }
+    LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            LatLng myLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+            if (markerMe != null) {
+                markerMe.remove();
+            } else {
+                buttonMe.setEnabled(true);
+            }
+            moveCameraAndSetMarkerMe(myLatLng, 15f);
+        }
+
+        @Override
+        public void onStatusChanged(String s, int i, Bundle bundle) { }
+
+        @Override
+        public void onProviderEnabled(String s) { }
+
+        @Override
+        public void onProviderDisabled(String s) { }
+    };
 }

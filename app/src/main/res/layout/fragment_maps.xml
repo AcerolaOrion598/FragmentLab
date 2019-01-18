@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Fragments.MapsFragment">
-    <!-- TODO: Update blank fragment layout -->
 
     <fragment
         android:id="@+id/map"
@@ -22,9 +21,8 @@
         android:id="@+id/spinnerTravelMode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorWhite"
+        android:background="@color/colorAccentLight"
         android:spinnerMode="dialog"
-
         android:visibility="visible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -44,6 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:enabled="false"
             android:text="@string/button_me_route" />
 
         <Button

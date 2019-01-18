@@ -45,6 +45,7 @@ public class SensorAndScreenshotFragment extends Fragment {
     Timer timer;
     TimerTask task;
     Bitmap screenshotBitmap;
+    boolean viewCreated = false;
 
     StringBuilder stringBuilder = new StringBuilder();
     float[] valuesAccelerometer = new float[3];
@@ -67,6 +68,7 @@ public class SensorAndScreenshotFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
+        viewCreated = true;
         sensorManager = (SensorManager) mainActivity.getSystemService(Context.SENSOR_SERVICE);
         sensorAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
@@ -78,10 +80,10 @@ public class SensorAndScreenshotFragment extends Fragment {
                     sensorManager.registerListener(listener, sensorAccelerometer, SensorManager.SENSOR_DELAY_UI);
                     timer = new Timer();
                     task = new MyTimerTask();
-                    timer.schedule(task, 0, 250);
+                    timer.schedule(task, 0, 125);
                 } else {
                     accelerometerButton.setText(getString(R.string.button_accelerometer_on));
-                    sensorTV.setText(R.string.accelerometer_text_view);
+                    sensorTV.setText(getString(R.string.accelerometer_text_view));
                     sensorManager.unregisterListener(listener);
                     timer.cancel();
                 }
@@ -109,11 +111,11 @@ public class SensorAndScreenshotFragment extends Fragment {
 
     @Override
     public void onPause() {
-        super.onPause();
         if (accelerometerButton.getText().toString().equals(getString(R.string.button_accelerometer_off))) {
             sensorManager.unregisterListener(listener);
             timer.cancel();
         }
+        super.onPause();
     }
 
     @Override
@@ -125,6 +127,12 @@ public class SensorAndScreenshotFragment extends Fragment {
             timer = new Timer();
             timer.schedule(task, 0, 250);
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        screenshotBitmap = null;
     }
 
     public void takeScreenshot() {
@@ -139,21 +147,24 @@ public class SensorAndScreenshotFragment extends Fragment {
         Date now = new Date();
         android.text.format.DateFormat.format("yyyy_MM-dd_hh:mm:ss", now);
 
-        try {
-            String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString()
-                    + "/" + now + ".jpg";
-            File screenshotFile = new File(path);
+        if (screenshotBitmap != null) {
+            try {
+                String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString()
+                        + "/" + now + ".jpg";
+                File screenshotFile = new File(path);
 
-            FileOutputStream outputStream = new FileOutputStream(screenshotFile);
-            int quality = 100;
-            screenshotBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
-            outputStream.flush();
-            outputStream.close();
-            Toast.makeText(this.getContext(), getString(R.string.toast_screenshot_save), Toast.LENGTH_SHORT).show();
-        } catch (Throwable e) {
-            e.printStackTrace();
+                FileOutputStream outputStream = new FileOutputStream(screenshotFile);
+                int quality = 100;
+                screenshotBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+                outputStream.flush();
+                outputStream.close();
+                Toast.makeText(this.getContext(), getString(R.string.toast_screenshot_save), Toast.LENGTH_SHORT).show();
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        } else {
+            Toast.makeText(this.getContext(), getString(R.string.toast_screenshot_empty), Toast.LENGTH_SHORT).show();
         }
-
     }
 
     private boolean hasPermissions() {
@@ -179,7 +190,7 @@ public class SensorAndScreenshotFragment extends Fragment {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-//        takeAndSavePictureIntent();
+        saveScreenshot();
     }
 
     private void showInfo() {
@@ -189,7 +200,7 @@ public class SensorAndScreenshotFragment extends Fragment {
 //                .append("\nAccelerometer motion: ").append(format(valuesAccelerometerMotion))
 //                .append("\nAccelerometer gravity: ").append(format(valuesAccelerometerGravity));
 
-        stringBuilder.append(R.string.accelerometer_text_view).append(format(valuesAccelerometer));
+        stringBuilder.append(getString(R.string.accelerometer_text_view)).append(" ").append(format(valuesAccelerometer));
         sensorTV.setText(stringBuilder);
     }
 
